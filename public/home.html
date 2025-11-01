@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ingresar Solicitud</title>
+    <link rel="icon" href="./img/logo.ico">
+    <link rel="preload" href="css/normalize.css" as="style">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/main.css" as="style">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">  
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <span class="text-title">CJN</span>
+            </div>
+            <div class="header-center">
+                <span class="mesa-partes-text">MESA DE PARTES VIRTUAL</span>
+            </div>
+            <div class="header-right">
+                <div id="logout" class="logout" title="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-bracket fa-2xl" style="color: #1983a3;"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="menu-item" onclick="window.location.href='procedure.html'">
+                <span class="icon"><i class="fa-solid fa-house"></i></span>
+                <span class="text"><strong>MIS TRÁMITES</strong></span>
+            </div>
+            <div class="menu-item active" onclick="window.location.href='home.html'">
+                <span class="icon"><i class="fa-solid fa-envelope"></i></span>
+                <span class="text"><strong>INGRESAR SOLICITUD</strong></span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='profile.html'">
+                <span class="icon"><i class="fa-solid fa-user-gear"></i></span>
+                <span class="text"><strong>MI PERFIL</strong></span>
+            </div>  
+            <div class="contact-info">
+                <p><strong>Central Telefónica: (01) 612-8230</strong></p>
+                <p class="whatsapp"><strong>WhatsApp: 966 429 596</strong></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="form-container">
+                <div class="form-header">
+                    <h1>FICHA DE SOLICITUD</h1>
+                </div>
+
+                <div class="form-content">
+                    <div class="form-sections">
+                        <!-- Datos del Remitente -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon"><i class="fa-solid fa-circle-user fa-lg" style="color: #ffffff;"></i></div>
+                                <h2>DATOS DEL REMITENTE</h2>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Apellidos y nombres</label>
+                                    <input type="text" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Documento de identidad</label>
+                                    <input type="text" class="form-control" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Correo electrónico</label>
+                                    <input type="email" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos del Documento -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon"><i class="fa-solid fa-file" style="color: #ffffff;"></i></div>
+                                <h2>DATOS DEL DOCUMENTO</h2>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tipo de documento</label>
+                                    <select id="tipoDocumento" class="form-control">
+                                        <option value="solicitud">SOLICITUD</option>
+                                        <option value="carta">CARTA</option>
+                                        <option value="oficio">OFICIO</option>
+                                        <option value="informe">INFORME</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Tipo de sub documento</label>
+                                    <select id="subDocumento" class="form-control">
+                                        <option value="simple">SIMPLE</option>
+                                        <option value="urgente">URGENTE</option>
+                                        <option value="confidencial">CONFIDENCIAL</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row full-width">
+                                <div class="form-group">
+                                    <label>Asunto de Documento (Máx. 200 caracteres)</label>
+                                    <textarea id="asuntoDocumento" class="form-control textarea" maxlength="200" placeholder="Solicito:"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-actions">
+                            <button type="button" class="btn-submit" onclick="handleGuardarContinuar()">Guardar y continuar</button>
+                        </div>
+
+                        <!-- Additional Fields (Hidden initially) -->
+                        <div id="additionalFields" class="additional-fields" style="display: none;">
+                            <div class="timeline-item-3">
+                                <div class="timeline-circle active">3</div>
+                            </div>
+
+                            <!-- Documentos Adjuntos -->
+                            <div class="form-section">
+                                <div class="section-header">
+                                    <div class="section-icon"><i class="fa-solid fa-file" style="color: #ffffff;"></i></div>
+                                    <h2>DOCUMENTOS ADJUNTOS</h2>
+                                </div>
+                                
+                                <p class="section-description">Puedes subir tu solicitud en documento en anexo sube los documentos que acrediten.</p>
+                                
+                                <div class="upload-section">
+                                    <label>Documento principal solo en formato PDF (tamaño máximo 10MB)</label>
+                                    <div class="upload-field">
+                                        <input type="file" id="mainDoc" accept=".pdf" style="display: none;" onchange="handleFileUpload(this, 'mainDoc')">
+                                        <input type="text" class="form-control upload-display" readonly>
+                                        <button type="button" class="btn-elegir" onclick="document.getElementById('mainDoc').click()">
+                                            <i class="fa-solid fa-download" style="color: #ffffff;"></i> <strong>Elegir</strong>
+                                        </button>
+                                    </div>
+                                    <div id="mainDoc-file" class="uploaded-file" style="display: none;">
+                                        <span class="file-icon"><i class="fa-solid fa-file" style="color: #000000;"></i></span>
+                                        <span class="file-name"></span>
+                                        <button type="button" class="btn-delete" onclick="removeFile('mainDoc')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="upload-section">
+                                    <label>Documento anexo Máximo 10 anexos. Archivos PDF, WORD, EXCEL (tamaño máximo 10MB)</label>
+                                    <div class="upload-field">
+                                        <input type="file" id="annexDoc" accept=".pdf,.doc,.docx,.xls,.xlsx" style="display: none;" onchange="handleFileUpload(this, 'annexDoc')">
+                                        <input type="text" class="form-control upload-display" readonly>
+                                        <button type="button" class="btn-elegir" onclick="document.getElementById('annexDoc').click()">
+                                            <i class="fa-solid fa-download" style="color: #ffffff;"></i> <strong>Elegir</strong>
+                                        </button>
+                                    </div>
+                                    <div id="annexDoc-file" class="uploaded-file" style="display: none;">
+                                        <span class="file-icon"><i class="fa-solid fa-file" style="color: #000000;"></i></span>
+                                        <span class="file-name"></span>
+                                        <button type="button" class="btn-delete" onclick="removeFile('annexDoc')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Autorización de Notificación -->
+                            <div class="notification-section">
+                                <h3>AUTORIZACIÓN DE NOTIFICACIÓN</h3>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="emailNotification">
+                                    <label for="emailNotification">Autorizo la notificación por correo electrónico</label>
+                                </div>
+                            </div>
+
+                            <!-- Términos y Condiciones -->
+                            <div class="terms-section">
+                                <h3>TÉRMINOS Y CONDICIONES</h3>
+                                <div class="checkbox-group">
+                                    <input type="checkbox" id="acceptTerms">
+                                    <label for="acceptTerms">He leído y acepto los <a href="#" onclick="showTermsModal()">términos y condiciones</a></label>
+                                </div>                                
+                                <div class="final-actions">
+                                    <button type="button" class="btn-submit" onclick="showConfirmModal()">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Generar Expediente -->
+    <div id="generateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-icon"><i class="fa-solid fa-circle-info"></i></span>
+                <h3>Generar expediente</h3>
+            </div>
+            <div class="modal-body">
+                <p>Se procederá a generar el expediente y la ficha de registro de tu documento.</p>
+                <p>¿Deseas continuar?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-accept" onclick="acceptGenerate()">✓ Aceptar</button>
+                <button class="btn-cancel" onclick="closeModal('generateModal')">✗ Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Envío -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-icon"><i class="fa-solid fa-circle-info"></i></span>
+                <h3>Confirmar envío</h3>
+            </div>
+            <div class="modal-body">
+                <p>Escribe tu contraseña de usuario para realizar la firma electrónica y confirmar el envío.</p>
+                <input id="confirmPassword" type="password" class="form-control" placeholder="Contraseña">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-accept" onclick="confirmSend()">✓ Aceptar</button>
+                <button class="btn-cancel" onclick="closeModal('confirmModal')">✗ Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Términos y Condiciones -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <span class="modal-icon"><i class="fa-solid fa-file-contract"></i></span>
+                <h3>Términos y Condiciones</h3>
+                <button class="close-btn" onclick="closeModal('termsModal')">&times;</button>
+            </div>
+            <div class="modal-body modal-body-terms scrollable">
+            <p>
+                Al usar la Mesa de Partes Virtual de <strong>CJN</strong> acepto los presentes términos y condiciones. Este servicio permite presentar documentos y solicitudes de manera electrónica para su registro y atención. Declaro que la información que consigno es veraz, completa y actualizada, y que soy responsable del contenido y legalidad de los documentos que cargo. Entiendo que CJN podrá utilizar la información únicamente para tramitar mi solicitud, comunicarse conmigo, acreditar la identidad del remitente y cumplir obligaciones legales o regulatorias aplicables.
+            </p>
+            <p>
+                Autorizo el uso de mi correo electrónico para comunicaciones relacionadas con mi expediente, incluyendo notificaciones de recepción, observaciones, subsanaciones y resultados. Reconozco que la confirmación de envío requiere mi contraseña de usuario y constituye una firma electrónica simple equivalente a mi manifestación de voluntad para registrar la solicitud. Me comprometo a mantener la confidencialidad de mis credenciales y notifico a CJN en caso de uso no autorizado.
+            </p>
+            <p>
+                Los archivos adjuntos se almacenan en una infraestructura en la nube (por ejemplo, almacenamiento de archivos y base de datos administrados) y CJN conservará únicamente los datos necesarios para la gestión del trámite, de acuerdo con los plazos de conservación aplicables. CJN adopta medidas razonables de seguridad técnica y organizativa; no obstante, el uso de servicios en línea conlleva riesgos inherentes, por lo que acepto utilizar el sistema de forma diligente y no cargar contenido ilícito, malicioso, que infrinja derechos de terceros o que incluya datos sensibles innecesarios. Puedo adjuntar un documento principal en formato PDF y, de ser necesario, anexos permitidos, respetando límites de tamaño y cantidad indicados en la plataforma.
+            </p>
+            <p>
+                El registro de la solicitud genera un número o constancia que permite identificar el expediente y consultar su estado. La sola presentación no implica aceptación automática del contenido; CJN podrá verificar requisitos formales, solicitar subsanaciones, rechazar presentaciones que incumplan condiciones o canalizarlas al área competente. El servicio puede experimentar interrupciones por mantenimiento o causas de fuerza mayor, sin que ello genere responsabilidad por daños indirectos o lucro cesante.
+            </p>
+            <p>
+                Puedo ejercer los derechos que me asistan sobre mis datos personales (acceso, rectificación, cancelación u oposición, según corresponda) mediante los canales de contacto publicados por CJN. Al marcar la casilla de aceptación declaro haber leído y comprendido estos términos y condiciones y otorgo mi consentimiento para el tratamiento de datos y el uso de la notificación electrónica vinculados a mi solicitud. CJN podrá actualizar estos términos; la versión vigente será la publicada en la plataforma al momento del uso.
+            </p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-accept" onclick="closeModal('termsModal')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cerrar Sesión -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <h3>Cerrar sesión</h3>
+        </div>
+        <div class="modal-body">
+            <p>Se cerrará tu sesión actual.</p>
+            <p>¿Deseas continuar?</p>
+        </div>
+        <div class="modal-actions">
+            <button id="logoutAccept" class="btn-accept">✓ Aceptar</button>
+            <button id="logoutCancel" class="btn-cancel">✗ Cancelar</button>
+        </div>
+        </div>
+    </div> 
+
+    <!-- Modal Envío Exitoso -->
+    <div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+        <span class="modal-icon"><i class="fa-solid fa-circle-check"></i></span>
+        <h3>Solicitud enviada</h3>
+        </div>
+        <div class="modal-body">
+        <p id="successMessage">Tu documento fue enviado exitosamente.</p>
+        </div>
+        <div class="modal-actions">
+        <button class="btn-accept" onclick="closeSuccessAndReset()">✓ Aceptar</button>
+        </div>
+    </div>
+    </div>
+
+    <script type="module" src="./js/load-user.js"></script>
+    <script type="module" src="./js/home.js"></script>
+    <script type="module" src="./js/session-guard.js"></script>    
+</body>
+</html>

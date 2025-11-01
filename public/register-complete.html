@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro</title>
+<link rel="icon" href="./img/logo.ico">
+<link rel="stylesheet" href="./css/styles.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+
+.error-message {
+    background-color: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+}
+
+#successModal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+#successModal .modal-content {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+    padding: 20px 30px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#successModal .modal-title {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+#successModal hr {
+    width: 100%;
+    border: 0;
+    border-top: 1px solid #0f5132;
+    margin: 10px 0;
+}
+
+#successModal p {
+    font-size: 16px;
+    margin: 10px 0;
+}
+
+#successModal button {
+    margin-top: 15px;
+    padding: 8px 20px;
+    background-color: #0f5132;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+}
+</style>
+</head>
+<body>
+<div class="login-container register">
+    <h1>COMPLETA TU REGISTRO</h1>
+
+    <form id="registerCompleteForm" class="grid-form">
+       
+        <!-- Datos personales -->
+        <div class="grid-3 align-bottom">
+            <div class="input-group dni-group">
+                <label for="dni">DNI</label>
+                <input type="text" id="dni" required />
+                <i class="fa-solid fa-circle-xmark dni-error-icon"></i>
+                <i class="fa-solid fa-circle-check dni-success-icon"></i>
+            </div>
+            <div class="input-group">
+                <label for="fechaNacimiento">Fecha de nacimiento</label>
+                <input type="date" id="fechaNacimiento" required />
+            </div>
+            <div class="input-group">
+                <label for="celular">Celular</label>
+                <input type="tel" id="celular" required />
+            </div>
+        </div>
+
+        <div class="grid-3">
+            <div class="input-group">
+                <label for="apellidoPaterno">Apellido Paterno</label>
+                <input type="text" id="apellidoPaterno" required readonly />
+            </div>
+            <div class="input-group">
+                <label for="apellidoMaterno">Apellido Materno</label>
+                <input type="text" id="apellidoMaterno" required readonly />
+            </div>
+            <div class="input-group">
+                <label for="nombres">Nombres</label>
+                <input type="text" id="nombres" required readonly />
+            </div>
+        </div>            
+
+
+        <div class="grid-3">
+            <div class="input-group">
+                <label for="departamento">Departamento</label>
+                <select id="departamento" required>
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="provincia">Provincia</label>
+                <select id="provincia" required>
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="distrito">Distrito</label>
+                <select id="distrito" required>
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid-3 align-bottom">
+            <div class="input-group">
+                <label for="direccion">Dirección</label>
+                <input type="text" id="direccion" placeholder="Ej. Av. La Paz 123, dpto. 401" required />
+            </div>
+        </div>
+
+        <div class="grid-2">
+            <div class="input-group">
+                <label for="password">Contraseña definitiva</label>
+                <input type="password" id="password" 
+                       placeholder="Min 8 caracteres, mayúscula, minúscula, número, especial" required />
+                <div id="passwordRequirements" style="font-size:12px; color:#555; margin-top:3px;">
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="confirmPassword">Confirmar contraseña</label>
+                <input type="password" id="confirmPassword" required />
+            </div>
+        </div>        
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <button type="submit" class="btn-guardar">
+            <i class="fa-solid fa-floppy-disk"></i>
+            Guardar y finalizar
+        </button>
+    </form>
+</div>
+
+<div id="successModal">
+    <div class="modal-content">
+        <div class="modal-title">
+            <i class="fa-solid fa-circle-exclamation"></i> Cuenta creada
+        </div>
+        <hr>
+        <p>¡Registro completado correctamente! Ahora puedes iniciar sesión.</p>
+        <button id="modalOkButton"><i class="fa-solid fa-check"></i> Aceptar</button>
+    </div>
+</div>
+<script src="./js/ubigeo.js"></script>
+<script src="./js/validarDNI.js"></script>
+<script type="module" src="./js/register-complete.js"></script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+[data-auth="checking"] {
+    visibility: hidden;
+}
+
+body {
+    font-family: "Krub", sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.checkbox-container {
+    width: 100%;              /* ocupa todo el ancho del formulario */
+    display: flex;
+    justify-content: flex-start; /* alinea a la izquierda */
+}
+
+.remember-me {
+    display: flex;
+    align-items: center; /* alinea verticalmente el checkbox y el texto */
+    gap: 5px;            /* espacio entre checkbox y texto */
+    font-size: 14px;
+    color: #555;
+    cursor: pointer;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px; /* espacio entre bloques */
+}
+
+input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+    margin-top: 12px;
+}
+
+
+.links a {
+    font-weight: bold;
+    color: #1983a3;
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: dashed;
+    color: #16647c;
+}
+
+.links span {
+    color: #ccc;
+}
+
+button {
+    padding: 10px;
+    background: #1983a3;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.btn-ingresar {
+    width: 60%;
+    padding: 10px;
+    background: #1983a3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px auto  20px auto; /* 20px de separación arriba */
+}
+
+.grid-form .btn-guardar{
+    padding: 10px;
+    background: #1983a3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 40%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px auto  15px auto; /* 20px de separación arriba */
+}
+
+.grid-form .btn-guardar i {
+    font-size: 18px;
+}
+
+.grid-form .btn-guardar:hover{
+    background: #16647c;
+}
+
+button:hover {
+    background: #16647c;
+}
+
+/* Botón principal */
+.primary-btn {
+    background: #007bff;
+}
+
+.primary-btn:hover {
+    background: #0056b3;
+}
+
+.grid-form .btn-validar {
+    padding: 10px;
+    background: #6c757d;
+    height: 100%; /* igual altura que los inputs */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-validar:hover {
+    background: #5a6268;
+}
+
+/* Ajustar ancho del formulario de registro */
+.login-container.register {
+    width: 750px;
+}
+
+.login-container h1{
+    margin: 25px auto 35px auto;
+}
+
+/* Grillas */
+.grid-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-container.register {
+        width: 95%;
+    }
+    .grid-2, .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* espacio entre label y input */
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #555;
+    font-weight: bold;
+}
+
+.input-group input {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-group input:focus{
+    border: 2px solid #1983a3 !important;
+    outline: none;
+}
+
+.align-bottom {
+    gap: 15px;                 /* espacio entre cada input y botón */
+    align-items: flex-end;      /* alinea inputs y botón por la base */
+}
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    width: 100%;
+    padding-right: 35px; /* espacio para el icono */
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #555;
+    font-size: 16px;
+}
+
+/* Selects imitando input */
+select {
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    background: white;
+    /* appearance: none; */
+}
+
+select:focus{
+    border: 2px solid #1983a3 !important;
+    outline: none;
+}
+
+.dni-group {
+    position: relative;
+    display: flex;
+}
+
+.dni-group input {
+    width: 100%;
+    padding-right: 35px; /* espacio para los iconos */
+    height: 40px; /* importante para centrar verticalmente */
+    box-sizing: border-box;
+}
+
+.dni-error-icon,
+.dni-success-icon {
+    position: absolute;
+    right: 10px;
+    font-size: 1.2em;
+    display: none; /* oculto por defecto */
+    top: 50%;
+    transform: translateY(10%);
+    pointer-events: none;
+}
+
+.dni-error-icon {
+    color: red;
+}
+
+.dni-success-icon {
+    color: green;
+}
+
+.input-error {
+    border: 2px solid red !important;
+}
+
+.input-success {
+    border: 2px solid green !important;
+}
+
+#apellidoPaterno,
+#apellidoMaterno,
+#nombres {
+    cursor: default; /* flecha normal */
+}
+
+/* Mantener borde rojo si hay error aunque el input esté enfocado */
+.input-error:focus {
+    border: 2px solid red !important;
+    outline: none; /* opcional, quita el resplandor azul por defecto */
+}
+
+/* Mantener borde verde si está correcto aunque el input esté enfocado */
+.input-success:focus {
+    border: 2px solid green !important;
+    outline: none;
+}
+
+/* Mantener borde normal cuando no tiene error ni éxito */
+input:focus:not(.input-error):not(.input-success) {
+    border: 2px solid #000; /* o el color que quieras al seleccionar */
+    outline: none;
+}
+
+.titulo-forgot {
+    font-size: 22px;   /* más pequeño que el h1 normal */
+    margin-bottom: 15px;
+}
+
+.link-register {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.links a.link-forgot {
+    font-weight: normal !important;
+    font-size: 14px;
+}
+
+/* ==================== FUNCIONES AUXILIARES ==================== */
+.modal-overlay {
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    color:white;
+    justify-content:center;
+    align-items:center; z-index:1000;
+}
+
+.modal-content {
+    background:#222;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+    max-width:400px;
+}

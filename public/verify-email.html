@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Correo - Mesa de Partes</title>
+    <link rel="icon" href="./img/logo.ico">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Verifica tu correo</h1>
+
+        <form id="verifyEmailForm">
+            <div class="input-group">
+                <label for="correo"><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
+                <input type="email" id="correo" placeholder="Ej. correo@gmail.com" required />
+            </div>
+            <button type="submit" >Enviar verificación</button>
+        </form>
+        <div class="links">
+            <a href="index.html"><i class="fa-solid fa-user"></i> Inicia sesión</a>
+        </div>
+    </div>
+    <!-- Modal bloqueante -->
+    <div id="modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="mensajeCorreo"></p>
+            <button id="btnVerificarEstado">Verificar estado del correo</button>
+        </div>
+    </div>
+    <script type="module" src="./js/verify-email.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa de Partes</title>
+    <link rel="icon" href="./img/logo.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>INICIO DE SESIÓN</h1>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="confirmPassword"><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
+                <input type="email" id="loginEmail" class="input-border" required />
+            </div>
+            <div class="input-group password-group">
+                <label for="loginPassword"><i class="fa-solid fa-lock"></i> Contraseña</label>
+                <div class="password-wrapper">
+                    <input type="password" id="loginPassword" required />
+                </div>
+            </div>
+
+            <button class="btn-ingresar" type="submit"><i class="fa-solid fa-door-open"></i> Ingresar</button>
+        </form>
+        
+        <div class="links">
+            <a href="verify-email.html"  class="link-register"><i class="fa-solid fa-plus"></i> Regístrate aquí</a>
+            <a href="forgot-password.html" class="link-forgot"></i> Olvidé mi contraseña</a>
+        </div>
+        
+    </div>
+
+    <script type="module" src="./js/login-guard.js"></script>
+    <script type="module" src="./js/login.js"></script>
+</body>
+</html>

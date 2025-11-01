@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Trámites</title>
+    <link rel="icon" href="./img/logo.ico">
+    <link rel="preload" href="css/normalize.css" as="style">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/main.css" as="style">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <span class="text-title">CJN</span>
+            </div>
+            <div class="header-center">
+                <span class="mesa-partes-text">MESA DE PARTES VIRTUAL</span>
+            </div>
+            <div class="header-right">
+                <div id="logout" class="logout" title="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-bracket fa-2xl" style="color: #1983a3;"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="menu-item active" onclick="window.location.href='procedure.html'">
+                <span class="icon"><i class="fa-solid fa-house"></i></span>
+                <span class="text"><strong>MIS TRÁMITES</strong></span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='home.html'">
+                <span class="icon"><i class="fa-solid fa-envelope"></i></span>
+                <span class="text"><strong>INGRESAR SOLICITUD</strong></span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='profile.html'">
+                <span class="icon"><i class="fa-solid fa-user-gear"></i></span>
+                <span class="text"><strong>MI PERFIL</strong></span>
+            </div>  
+            <div class="contact-info">
+                <p><strong>Central Telefónica: (01) 612-8230</strong></p>
+                <p class="whatsapp"><strong>WhatsApp: 966 429 596</strong></p>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="procedures-container">
+                <!-- Header Section -->
+                <div class="procedures-header">
+                    <div class="update-notice">
+                        <p>Es importante que mantengas tus datos actualizados para un trámite exitoso.</p>
+                        <button class="btn-actualizar" onclick="window.location.href='profile.html'">
+                            Actualizar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <div class="filter-group">
+                        <label for="filterSelect">Filtrar por</label>
+                        <select id="filterSelect" class="filter-select">
+                            <option value="desc">Descendente</option>
+                            <option value="asc">Ascendente</option>
+                        </select>
+                    </div>
+                    <div class="results-per-page">
+                        <select class="page-select">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Pagination Info -->
+                <div class="pagination-info">
+                    <span></span>
+                    <div class="pagination-controls">
+                        <button class="pagination-btn" disabled>‹‹</button>
+                        <button class="pagination-btn" disabled>‹</button>
+                        <button class="pagination-btn active">1</button>
+                        <button class="pagination-btn" disabled>›</button>
+                        <button class="pagination-btn" disabled>››</button>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-container">
+                    <table class="procedures-table">
+                        <thead>
+                            <tr>
+                                <th>Expediente</th>
+                                <th>Fecha de creación y envío</th>
+                                <th>Tipo de documento</th>
+                                <th>Tipo de sub documento</th>
+                                <th>Ver PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="expediente-cell">
+                                        <span class="expediente-number">1757022440460</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="date-cell">
+                                        <span class="date">04 set 2025 16:47</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="tipo-cell">
+                                        <span class="tipo-text">SOLICITUD</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="sub-cell">
+                                        <span class="sub-text">SIMPLE</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="actions-cell">
+                                        <button class="action-btn view-btn" title="Ver">
+                                           <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Cerrar Sesión -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <h3>Cerrar sesión</h3>
+        </div>
+        <div class="modal-body">
+            <p>Se cerrará tu sesión actual.</p>
+            <p>¿Deseas continuar?</p>
+        </div>
+        <div class="modal-actions">
+            <button id="logoutAccept" class="btn-accept">✓ Aceptar</button>
+            <button id="logoutCancel" class="btn-cancel">✗ Cancelar</button>
+        </div>
+        </div>
+    </div> 
+
+    <script type="module" src="./js/procedure.js"></script>
+    <script type="module" src="./js/session-guard.js"></script>
+
+</body>
+</html>
