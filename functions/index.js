@@ -59,7 +59,7 @@ exports.enviarSolicitud = onCall(
           : `<li>— sin archivos —</li>`;
 
       const mailOptions = {
-        from: "jheffer17x@gmail.com",    // remitente VERIFICADO en SendGrid
+        from: "democcjn@gmail.com",    // remitente VERIFICADO en SendGrid
         to: "jhefguerrerot@gmail.com",   // destinatario
         subject: `Nueva solicitud de ${nombres}`,
         html: `
