@@ -10,7 +10,7 @@ Sistema web para registrar y gestionar solicitudes con adjuntos (PDF/Word).
 Incluye autenticación, bandeja **Mis Trámites**, **Perfil** y **correo automático** al encargado.
 
 [![Abrir la demo](https://img.shields.io/badge/DEMO-abrir%20app-blue)](https://mesa-de-partes-5c6c2.web.app/)
-[![Repositorio](https://img.shields.io/badge/GitHub-Novita17x-000)](https://github.com/Novita17x/mesa-de-partes-ccjn)
+[![Repositorio](https://img.shields.io/badge/GitHub-jheffersonGuerrero-000)](https://github.com/jhefferson-guerrero/mesa-de-partes-ccjn)
 
 
 ## Demo rápida
