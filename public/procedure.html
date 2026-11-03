@@ -62,31 +62,57 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="procedures-container">
-                <!-- Header Section -->
-                <div class="procedures-header">
-                    <div class="update-notice">
-                        <p>Es importante que mantengas tus datos actualizados para un trámite exitoso.</p>
-                        <button class="btn-actualizar" onclick="window.location.href='profile.html'">
-                            Actualizar
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Filter Section -->
                 <div class="filter-section">
-                    <div class="filter-group">
-                        <label for="filterSelect">Filtrar por</label>
-                        <select id="filterSelect" class="filter-select">
-                            <option value="desc">Descendente</option>
-                            <option value="asc">Ascendente</option>
-                        </select>
+                    <div class="filters-grid">
+                        <div class="filter-field f-buscar">
+                            <label for="searchInput">Buscar</label>
+                            <div class="input-icon">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                <input id="searchInput" type="search" class="filter-input" placeholder="Número de expediente o asunto" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="filter-field f-tipo">
+                            <label for="tipoFilter">Tipo de documento</label>
+                            <select id="tipoFilter" class="filter-select">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="filter-field f-subtipo">
+                            <label for="subTipoFilter">Tipo de sub documento</label>
+                            <select id="subTipoFilter" class="filter-select">
+                                <option value="">Todos</option>
+                            </select>
+                        </div>
+                        <div class="filter-field f-desde">
+                            <label for="desdeFilter">Desde</label>
+                            <input id="desdeFilter" type="date" class="filter-input">
+                        </div>
+                        <div class="filter-field f-hasta">
+                            <label for="hastaFilter">Hasta</label>
+                            <input id="hastaFilter" type="date" class="filter-input">
+                        </div>
+                        <div class="filter-field f-orden">
+                            <label for="filterSelect">Ordenar por fecha</label>
+                            <select id="filterSelect" class="filter-select">
+                                <option value="desc">Más recientes primero</option>
+                                <option value="asc">Más antiguos primero</option>
+                            </select>
+                        </div>
+                        <div class="filter-field f-pagina">
+                            <label for="pageSizeSelect">Por página</label>
+                            <select id="pageSizeSelect" class="page-select">
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="results-per-page">
-                        <select class="page-select">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
+                    <div class="filter-footer">
+                        <span id="filterSummary" class="filter-summary" role="status" aria-live="polite"></span>
+                        <button type="button" id="clearFilters" class="btn-limpiar" disabled>
+                            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Limpiar filtros
+                        </button>
                     </div>
                 </div>
 
@@ -111,38 +137,13 @@
                                 <th>Fecha de creación y envío</th>
                                 <th>Tipo de documento</th>
                                 <th>Tipo de sub documento</th>
+                                <th>Asunto</th>
                                 <th>Ver PDF</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <div class="expediente-cell">
-                                        <span class="expediente-number">1757022440460</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="date-cell">
-                                        <span class="date">04 set 2025 16:47</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="tipo-cell">
-                                        <span class="tipo-text">SOLICITUD</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="sub-cell">
-                                        <span class="sub-text">SIMPLE</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="actions-cell">
-                                        <button class="action-btn view-btn" title="Ver">
-                                           <i class="fa-solid fa-eye" style="color: #ffffff;"></i>
-                                        </button>
-                                    </div>
-                                </td>
+                            <tr class="fila-estado">
+                                <td colspan="6">Cargando trámites…</td>
                             </tr>
                         </tbody>
                     </table>
