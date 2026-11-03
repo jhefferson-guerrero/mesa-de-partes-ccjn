@@ -1,6 +1,7 @@
-import { auth, db } from "./firebase-config.js";
+import { auth } from "./firebase-config.js";
+import { db } from "./firebase-db.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 
 // Listener de sesión activa
 onAuthStateChanged(auth, async (user) => {
@@ -12,6 +13,7 @@ onAuthStateChanged(auth, async (user) => {
             if (userSnap.exists()) {
                 const userData = userSnap.data();
                 sessionStorage.setItem("userData", JSON.stringify(userData));
+                sessionStorage.setItem("userDataUid", user.uid);
 
                 // Disparar evento para avisar que los datos ya están listos
                 document.dispatchEvent(new Event("userDataLoaded"));

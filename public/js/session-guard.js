@@ -49,6 +49,12 @@ btnCancel?.addEventListener("click", () => {
 
 btnAccept?.addEventListener("click", async () => {
   try {
+    // No dejar datos personales del usuario en la pestaña al cerrar sesión
+    sessionStorage.removeItem("userData");
+    sessionStorage.removeItem("userDataUid");
+    Object.keys(sessionStorage)
+      .filter((k) => k.startsWith("tramites:"))
+      .forEach((k) => sessionStorage.removeItem(k));
     await signOut(auth);
   } finally {
     window.location.replace("index.html");

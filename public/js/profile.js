@@ -1,5 +1,6 @@
-import { auth, db } from "./firebase-config.js";
-import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { auth } from "./firebase-config.js";
+import { db } from "./firebase-db.js";
+import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 
 let profileEditMode = false;
@@ -139,6 +140,15 @@ function cargarDatosUsuario() {
 }
 
 document.addEventListener("DOMContentLoaded", cargarDatosUsuario);
+
+// Si se entra directo al perfil (pestaña nueva, sin copia guardada), los datos llegan
+// después desde Firestore (load-user.js) y se llenan los campos en ese momento.
+let perfilYaMostrado = !!sessionStorage.getItem("userData");
+document.addEventListener("userDataLoaded", () => {
+    if (perfilYaMostrado || profileEditMode) return;
+    perfilYaMostrado = true;
+    cargarDatosUsuario();
+});
 
 // Tabs
 window.showProfileTab = function (tabId) {

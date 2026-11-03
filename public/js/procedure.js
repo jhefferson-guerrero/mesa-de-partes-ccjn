@@ -1,13 +1,14 @@
 // /js/procedure.js
 
-import { auth, db } from "./firebase-config.js";
+import { auth } from "./firebase-config.js";
+import { db } from "./firebase-db.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import {
   collection,
   getDocs,
   query,
   where,
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 
 
 function parseExpedienteFromPath(path = "") {
@@ -231,6 +232,47 @@ function renderRows() {
   updatePaginationControls(meta);
 }
 
+/* =============== Caché de la lista =============== */
+// La lista ya vista se guarda en la pestaña (sessionStorage): al volver a Mis Trámites
+// se muestra al instante y luego se actualiza en segundo plano desde Firestore.
+// Se borra al cerrar sesión o al cerrar la pestaña.
+const CACHE_PREFIX = "tramites:";
+
+function readCachedRows(uid) {
+  try {
+    const raw = sessionStorage.getItem(CACHE_PREFIX + uid);
+    if (!raw) return null;
+    return JSON.parse(raw).map((r) => {
+      const fechaRaw = r.fechaMs ? new Date(r.fechaMs) : null;
+      return {
+        expediente: r.expediente,
+        fechaRaw,
+        fecha: formatFecha(fechaRaw),
+        tipo: r.tipo,
+        subTipo: r.subTipo,
+        urlPrincipal: r.urlPrincipal,
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedRows(uid, rows) {
+  try {
+    const plain = rows.map((r) => ({
+      expediente: r.expediente,
+      fechaMs: r.fechaRaw?.toMillis?.() ?? (r.fechaRaw instanceof Date ? r.fechaRaw.getTime() : 0),
+      tipo: r.tipo,
+      subTipo: r.subTipo,
+      urlPrincipal: r.urlPrincipal,
+    }));
+    sessionStorage.setItem(CACHE_PREFIX + uid, JSON.stringify(plain));
+  } catch {
+    // sessionStorage lleno o bloqueado: simplemente no se guarda en caché
+  }
+}
+
 /* =============== Carga datos =============== */
 
 async function loadProceduresForUser(uid) {
@@ -263,6 +305,7 @@ async function loadProceduresForUser(uid) {
 
   allRows = items;
   renderRows();
+  writeCachedRows(uid, items);
 }
 
 /* =============== Filtros =============== */
@@ -294,6 +337,16 @@ document.addEventListener("DOMContentLoaded", () => {
   clearStaticRowImmediately();
   setupFilterAscDesc();
   setupPageSize();
+
+  // Mostrar al instante la lista ya vista (si existe) sin esperar a la sesión ni a Firestore
+  const cachedUid = sessionStorage.getItem("userDataUid");
+  const cached = cachedUid ? readCachedRows(cachedUid) : null;
+  if (cached) {
+    rowsSortedAsc = getFilterSelect()?.value === "asc";
+    pageSize = parseInt(getPageSelect()?.value || "10", 10) || 10;
+    allRows = cached;
+    renderRows();
+  }
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -304,5 +357,10 @@ onAuthStateChanged(auth, async (user) => {
   const sel = getPageSelect();
   pageSize = parseInt(sel?.value || "10", 10) || 10;
 
-  await loadProceduresForUser(user.uid);
+  // Actualiza desde Firestore; si falla y ya se mostró la caché, se deja esa lista
+  try {
+    await loadProceduresForUser(user.uid);
+  } catch (err) {
+    console.error("No se pudo actualizar la lista de trámites:", err);
+  }
 });

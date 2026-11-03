@@ -3,6 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js">
+    <link rel="modulepreload" href="./js/firebase-config.js">
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js">
+    <link rel="modulepreload" href="./js/firebase-db.js">
     <title>Mi Perfil</title>
     <link rel="icon" href="./img/logo.ico">
     <link rel="preload" href="css/normalize.css" as="style">
@@ -225,6 +233,7 @@
     
     <script src="./js/ubigeo.js"></script>
     <script type="module" src="./js/profile.js"></script>
+    <script type="module" src="./js/load-user.js"></script>
     <script type="module" src="./js/session-guard.js"></script>
 </body>
 </html>

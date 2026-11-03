@@ -1,6 +1,7 @@
-import { auth, db } from "./firebase-config.js";
+import { auth } from "./firebase-config.js";
+import { db } from "./firebase-db.js";
 import { updatePassword, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-import { doc, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { doc, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 import { sessionReady } from "./register-session.js";
 
 const form = document.getElementById("registerCompleteForm");

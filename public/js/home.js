@@ -1,5 +1,6 @@
 // /js/home.js
-import { auth, db, storage } from "./firebase-config.js";
+import { auth, app } from "./firebase-config.js";
+import { db } from "./firebase-db.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
 
 const functions = getFunctions(undefined, "us-central1");
@@ -14,12 +15,15 @@ import {
   addDoc,
   collection,
   serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 import {
+  getStorage,
   ref,
   uploadBytes,
   getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
+
+const storage = getStorage(app);
 
 
 /* ------------ Cargar datos del usuario (sessionStorage) ------------ */
