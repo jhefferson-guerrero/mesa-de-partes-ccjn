@@ -42,7 +42,7 @@ body {
         "header header"
         "sidebar main";
     /* La barra lateral se adapta al ancho de pantalla (232px en 1366, 260px como máximo) */
-    grid-template-columns: clamp(23rem, 15vw, 26rem) minmax(0, 1fr);
+    grid-template-columns: clamp(25rem, 16vw, 28rem) minmax(0, 1fr);
     grid-template-rows: clamp(5.2rem, 9vh, 8rem) minmax(0, 1fr);
     /* La app ocupa exactamente la pantalla: cabecera y menú fijos, solo el contenido se desplaza */
     height: 100vh;
@@ -1588,5 +1588,70 @@ select.form-control {
     }
     .btn-limpiar {
         justify-content: center;
+    }
+}
+
+/* ==========================================================================
+   BOTÓN CERRAR SESIÓN
+   Botón con icono y texto, con estados al pasar el ratón, al pulsar y con el teclado.
+   En pantallas pequeñas queda solo el icono.
+   ========================================================================== */
+.logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 0.9rem 1.8rem;
+    border: 2px solid var(--primario);
+    border-radius: 999px;
+    background-color: var(--blanco);
+    color: var(--primario);
+    font-family: inherit;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.logout i {
+    font-size: 1.6rem;
+    transition: transform 0.2s;
+}
+
+.logout:hover {
+    background-color: var(--primario);
+    color: var(--blanco);
+    box-shadow: 0 6px 14px rgba(25, 131, 163, 0.3);
+    transform: translateY(-1px);
+}
+
+.logout:hover i {
+    transform: translateX(3px);
+}
+
+.logout:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(25, 131, 163, 0.25);
+}
+
+.logout:focus-visible {
+    outline: 3px solid rgba(25, 131, 163, 0.4);
+    outline-offset: 3px;
+}
+
+@media (max-width: 768px) {
+    .logout {
+        padding: 0.9rem 1.2rem;
+    }
+    .logout-text {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logout,
+    .logout i {
+        transition: none;
     }
 }

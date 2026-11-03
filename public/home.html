@@ -14,7 +14,10 @@
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js">
     <title>Ingresar Solicitud</title>
-    <link rel="icon" href="./img/logo.ico">
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
+    <meta name="theme-color" content="#1983a3">
     <link rel="preload" href="css/normalize.css" as="style">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,9 +38,10 @@
                 <span class="mesa-partes-text">MESA DE PARTES VIRTUAL</span>
             </div>
             <div class="header-right">
-                <div id="logout" class="logout" title="Cerrar sesión">
-                    <i class="fa-solid fa-right-from-bracket fa-2xl" style="color: #1983a3;"></i>
-                </div>
+                <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                    <span class="logout-text">Cerrar sesión</span>
+                </button>
             </div>
         </header>
 
