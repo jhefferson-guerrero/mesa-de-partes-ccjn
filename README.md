@@ -28,8 +28,18 @@ Incluye autenticación, bandeja **Mis Trámites**, **Perfil** y **correo automá
 
 ## Stack
 - **Frontend:** HTML5, CSS3, JavaScript
-- **BaaS:** Firebase (Authentication, Firestore, Hosting)
-- **Email:** (Cloud Function/servicio SMTP)
+- **BaaS:** Firebase (Authentication, Firestore, Cloud Storage, Hosting)
+- **Backend:** Cloud Functions (Node 22): envío de correo por SMTP (Gmail) y consulta de DNI
+
+## Seguridad
+- **Firestore y Storage** tienen reglas por usuario (`firestore.rules`, `storage.rules`): cada persona solo lee y crea sus propios datos y archivos.
+- Las Cloud Functions exigen sesión con correo verificado. El correo se arma en el servidor con los datos guardados, no con lo que envíe el navegador.
+- Ninguna clave va en el código. El token de DNI y las credenciales de correo viven en `functions/.env` (no se sube a Git).
+
+## Configuración y despliegue
+1. Copia `functions/.env.example` a `functions/.env` y completa los valores.
+2. Instala dependencias de las funciones: `cd functions && npm install`.
+3. Despliega todo junto (reglas, funciones y hosting): `firebase deploy`.
 
 ## Screenshots
  ![Login](screens/login.png)

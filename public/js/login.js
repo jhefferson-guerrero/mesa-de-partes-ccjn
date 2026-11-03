@@ -34,10 +34,16 @@ async function loginUsuario(e) {
     window.location.href = "home.html";
   } catch (error) {
     console.error(error);
-    if (error.code === "auth/user-not-found") {
-      alert("Usuario no registrado.");
-    } else if (error.code === "auth/wrong-password") {
-      alert("Contraseña incorrecta.");
+    // Firebase actual devuelve invalid-credential tanto para usuario inexistente como
+    // para contraseña errónea (no revela si el correo existe); se mantienen los códigos antiguos.
+    if (
+      error.code === "auth/invalid-credential" ||
+      error.code === "auth/user-not-found" ||
+      error.code === "auth/wrong-password"
+    ) {
+      alert("Correo o contraseña incorrectos.");
+    } else if (error.code === "auth/too-many-requests") {
+      alert("Demasiados intentos. Espera unos minutos o restablece tu contraseña.");
     } else {
       alert("Error al iniciar sesión: " + error.message);
     }

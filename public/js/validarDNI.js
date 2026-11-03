@@ -1,3 +1,12 @@
+// /js/validarDNI.js
+// Consulta los nombres por DNI a través de la Cloud Function "consultarDni".
+// El token de miapi.cloud vive en el servidor, no en el navegador.
+import "./firebase-config.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
+import { sessionReady } from "./register-session.js";
+
+const consultarDni = httpsCallable(getFunctions(undefined, "us-central1"), "consultarDni");
+
 const dniInput = document.getElementById("dni");
 const nombresInput = document.getElementById("nombres");
 const apePInput = document.getElementById("apellidoPaterno");
@@ -9,6 +18,21 @@ const dniSuccessIcon = document.querySelector(".dni-success-icon");
 dniErrorIcon.style.display = "none";
 dniSuccessIcon.style.display = "none";
 
+function limpiarNombres() {
+    nombresInput.value = "";
+    apePInput.value = "";
+    apeMInput.value = "";
+    nombresInput.removeAttribute("readonly");
+    apePInput.removeAttribute("readonly");
+    apeMInput.removeAttribute("readonly");
+}
+
+function marcarError() {
+    dniInput.classList.add("input-error");
+    dniErrorIcon.style.display = "block";
+    limpiarNombres();
+}
+
 dniInput.addEventListener("input", async () => {
     dniInput.value = dniInput.value.replace(/\D/g, "").slice(0, 8);
     const dni = dniInput.value.trim();
@@ -19,41 +43,28 @@ dniInput.addEventListener("input", async () => {
     dniSuccessIcon.style.display = "none";
 
     if (dni.length < 8) {
-        nombresInput.value = "";
-        apePInput.value = "";
-        apeMInput.value = "";
-        nombresInput.removeAttribute("readonly");
-        apePInput.removeAttribute("readonly");
-        apeMInput.removeAttribute("readonly");
+        limpiarNombres();
         return;
     }
 
     try {
-        const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE3MzI3NTQ5OTd9.Zw_MnXDS8edLTV-iu_cJP6-TevUgQt_4YMx1htCwwSw";
-        const response = await fetch(`https://miapi.cloud/v1/dni/${dni}`, {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        const { datos } = await response.json();
+        await sessionReady;
+        const { data } = await consultarDni({ dni });
 
-        if (!datos || !datos.dni) {
-            dniInput.classList.add("input-error");
-            dniErrorIcon.style.display = "block";
+        // Si el usuario siguió escribiendo mientras tanto, ignorar esta respuesta
+        if (dniInput.value.trim() !== dni) return;
 
-            nombresInput.value = "";
-            apePInput.value = "";
-            apeMInput.value = "";
-            nombresInput.removeAttribute("readonly");
-            apePInput.removeAttribute("readonly");
-            apeMInput.removeAttribute("readonly");
+        if (!data || !data.found) {
+            marcarError();
             return;
         }
 
         dniInput.classList.add("input-success");
         dniSuccessIcon.style.display = "block";
 
-        nombresInput.value = datos.nombres;
-        apePInput.value = datos.ape_paterno;
-        apeMInput.value = datos.ape_materno;
+        nombresInput.value = data.nombres;
+        apePInput.value = data.apellidoPaterno;
+        apeMInput.value = data.apellidoMaterno;
 
         nombresInput.setAttribute("readonly", true);
         apePInput.setAttribute("readonly", true);
@@ -61,14 +72,6 @@ dniInput.addEventListener("input", async () => {
 
     } catch (error) {
         console.error(error);
-        dniInput.classList.add("input-error");
-        dniErrorIcon.style.display = "block";
-
-        nombresInput.value = "";
-        apePInput.value = "";
-        apeMInput.value = "";
-        nombresInput.removeAttribute("readonly");
-        apePInput.removeAttribute("readonly");
-        apeMInput.removeAttribute("readonly");
+        marcarError();
     }
 });

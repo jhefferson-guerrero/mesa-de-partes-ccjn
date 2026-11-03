@@ -1,8 +1,63 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function verifiedUser() {
+      return signedIn() && request.auth.token.email_verified == true;
+    }
+
+    // Perfil del usuario: solo el dueño lo lee; solo puede editar datos de contacto.
+    match /usuarios/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+
+      // Se crea una sola vez durante el registro, junto con /dnis/{dni} (batch).
+      allow create: if verifiedUser()
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+             'correo', 'dni', 'apellidoPaterno', 'apellidoMaterno', 'nombres',
+             'celular', 'direccion', 'departamento', 'provincia', 'distrito',
+             'fechaNacimiento', 'fechaRegistro'
+           ])
+        && request.resource.data.correo == request.auth.token.email
+        && request.resource.data.dni.matches('^[0-9]{8}$')
+        && getAfter(/databases/$(database)/documents/dnis/$(request.resource.data.dni)).data.uid == uid;
+
+      // Solo estos campos se pueden modificar desde la app (ver profile.js).
+      allow update: if signedIn()
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['direccion', 'celular', 'departamento', 'provincia', 'distrito']);
+
+      allow delete: if false;
+    }
+
+    // Índice de DNIs ya registrados (garantiza unicidad sin exponer datos).
+    // Nadie puede leerlo desde el cliente; si el documento ya existe, el create falla.
+    match /dnis/{dni} {
+      allow read: if false;
+      allow create: if verifiedUser()
+        && dni.matches('^[0-9]{8}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Solicitudes: cada usuario solo ve y crea las suyas. No se editan ni se borran.
+    match /ficha-solicitud/{solicitudId} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if verifiedUser()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.correo == request.auth.token.email;
+      allow update, delete: if false;
+    }
+
+    // Todo lo demás, cerrado.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }

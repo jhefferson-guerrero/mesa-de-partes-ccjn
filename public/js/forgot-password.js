@@ -16,12 +16,16 @@ form.addEventListener("submit", async (e) => {
 
   try {
     await sendPasswordResetEmail(auth, email);
-    alert("Se envió un enlace de recuperación a tu correo.");
+    // Mensaje neutro: no se revela si el correo está registrado o no
+    alert("Si el correo está registrado, recibirás un enlace de recuperación.");
     form.reset();
   } catch (error) {
     console.error(error);
     if (error.code === "auth/user-not-found") {
-      alert("No existe un usuario registrado con ese correo.");
+      alert("Si el correo está registrado, recibirás un enlace de recuperación.");
+      form.reset();
+    } else if (error.code === "auth/too-many-requests") {
+      alert("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.");
     } else {
       alert("Error: " + error.message);
     }

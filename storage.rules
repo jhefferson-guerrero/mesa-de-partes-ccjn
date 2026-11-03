@@ -1,0 +1,26 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Adjuntos de solicitudes: cada usuario solo accede a su propia carpeta.
+    // Los enlaces de descarga (con token) que se envían por correo siguen funcionando.
+    match /ficha-solicitudes/{uid}/{allPaths=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType.matches(
+             'application/(pdf|msword|vnd\\.ms-excel|vnd\\.openxmlformats-officedocument\\..*|octet-stream)'
+           );
+
+      allow update, delete: if false;
+    }
+
+    // Todo lo demás, cerrado.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -172,6 +172,11 @@ window.showConfirmModal = function showConfirmModal() {
     alert("El Documento principal supera los 10MB.");
     return;
   }
+  const annexFile = document.getElementById("annexDoc")?.files?.[0] || null;
+  if (annexFile && annexFile.size > maxBytes) {
+    alert("El Anexo supera los 10MB.");
+    return;
+  }
   if (!emailNotification || !acceptTerms) {
     alert("Debes autorizar la notificación por correo y aceptar los términos.");
     return;
@@ -292,7 +297,7 @@ window.confirmSend = async function confirmSend() {
       annexMeta = { name: annexFile.name, contentType: annexFile.type || "application/octet-stream", size: annexFile.size, path: annexSnap.metadata.fullPath };
     }
 
-    await addDoc(collection(db, "ficha-solicitud"), {
+    const solicitudRef = await addDoc(collection(db, "ficha-solicitud"), {
       userId: user.uid,
       correo: user.email,
       tipoDocumento,
@@ -307,22 +312,10 @@ window.confirmSend = async function confirmSend() {
       creadoEn: serverTimestamp(),
     });
 
-    // 4) Notificación
+    // 4) Notificación (el servidor arma el correo a partir de la solicitud guardada)
     try {
-      const userData = JSON.parse(sessionStorage.getItem("userData")) || {};
       const enviarSolicitud = httpsCallable(functions, "enviarSolicitud");
-      await enviarSolicitud({
-        nombres: `${userData.apellidoPaterno || ""} ${userData.apellidoMaterno || ""} ${userData.nombres || ""}`.trim(),
-        dni: userData.dni || "",
-        correo: userData.correo || user.email,
-        tipoDocumento,
-        subDocumento,
-        asunto,
-        archivos: [
-          mainUrl ? { nombre: mainMeta?.name || "principal.pdf", url: mainUrl } : null,
-          annexUrl ? { nombre: annexMeta?.name || "anexo", url: annexUrl } : null,
-        ].filter(Boolean),
-      });
+      await enviarSolicitud({ solicitudId: solicitudRef.id });
       console.log("enviarSolicitud: llamada completada correctamente");
     } catch(e) {
       console.warn("No se pudo enviar el correo (continúo igual):", e);

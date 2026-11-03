@@ -1,6 +1,7 @@
 import { auth, db } from "./firebase-config.js";
-import { signInWithEmailAndPassword, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
-import { doc, setDoc, Timestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { updatePassword, signOut } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { doc, writeBatch, Timestamp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+import { sessionReady } from "./register-session.js";
 
 const form = document.getElementById("registerCompleteForm");
 const errorMessage = document.getElementById("errorMessage");
@@ -140,23 +141,28 @@ form.addEventListener("submit", async (e) => {
         return;
     }
 
+    if (!/^\d{8}$/.test(dni)) {
+        showError("El DNI debe tener 8 dígitos.");
+        return;
+    }
+
+    // Sesión de la cuenta temporal (se abre en register-session.js)
+    let user;
     try {
-        const usuariosRef = collection(db, "usuarios");
-        const q = query(usuariosRef, where("dni", "==", dni));
-        const querySnapshot = await getDocs(q);
+        user = await sessionReady;
+    } catch (error) {
+        console.error(error);
+        showError("Tu sesión de verificación expiró. Regresa al paso anterior para verificar tu correo.");
+        return;
+    }
 
-        if (!querySnapshot.empty) {
-            showError("El DNI ingresado ya está registrado. Por favor utiliza otro.");
-            return;
-        }
-
-        const userCredential = await signInWithEmailAndPassword(auth, correo, passwordTemp);
-        const user = userCredential.user;
-
-        await updatePassword(user, password);
-
-        await setDoc(doc(db, "usuarios", user.uid), {
-            correo,
+    try {
+        // Un solo batch: reserva el DNI (/dnis/{dni}) y crea el perfil.
+        // Si el DNI ya existe, las reglas rechazan todo el batch (permission-denied).
+        const batch = writeBatch(db);
+        batch.set(doc(db, "dnis", dni), { uid: user.uid });
+        batch.set(doc(db, "usuarios", user.uid), {
+            correo: user.email,
             dni,
             apellidoPaterno,
             apellidoMaterno,
@@ -169,16 +175,28 @@ form.addEventListener("submit", async (e) => {
             fechaNacimiento,
             fechaRegistro: Timestamp.now()
         });
+        await batch.commit();
+    } catch (error) {
+        console.error(error);
+        if (error.code === "permission-denied") {
+            showError("El DNI ingresado ya está registrado o no se pudo completar el registro. Verifica tus datos.");
+        } else {
+            showError("Error al completar el registro: " + error.message);
+        }
+        return;
+    }
 
+    try {
+        // Reemplaza la contraseña temporal por la que eligió el usuario
+        await updatePassword(user, password);
         await signOut(auth);
         localStorage.removeItem("correoVerificado");
         localStorage.removeItem("passwordTemp");
 
         successModal.style.display = "flex";
-
     } catch (error) {
         console.error(error);
-        showError("Error al completar el registro: " + error.message);
+        showError("Tu perfil se guardó, pero no se pudo establecer la contraseña. Usa «Olvidé mi contraseña» para crearla.");
     }
 });
 
