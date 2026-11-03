@@ -2,6 +2,7 @@ import { auth } from "./firebase-config.js";
 import { db } from "./firebase-db.js";
 import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { mostrarMensaje } from "./ui-modal.js";
 
 let profileEditMode = false;
 
@@ -226,7 +227,7 @@ window.updateUserProfile = async function () {
     // Validación de dirección
     const direccion = direccionInput?.value.trim() || "";
     if (!direccion) {
-        alert("El campo Dirección/domicilio fiscal no puede estar vacío.");
+        mostrarMensaje("El campo Dirección/domicilio fiscal no puede estar vacío.", { tipo: "aviso", titulo: "Falta la dirección" });
         return;
     }
     updatedData.direccion = direccion;
@@ -234,11 +235,11 @@ window.updateUserProfile = async function () {
     // Validación de celular
     const celular = celularInput?.value || "";
     if (celular.length !== 9) {
-        alert("El celular debe tener exactamente 9 dígitos.");
+        mostrarMensaje("El celular debe tener exactamente 9 dígitos.", { tipo: "aviso", titulo: "Celular no válido" });
         return;
     }
     if (!celular.startsWith("9")) {
-        alert("El celular debe empezar en 9.");
+        mostrarMensaje("El celular debe empezar en 9.", { tipo: "aviso", titulo: "Celular no válido" });
         return;
     }
     updatedData.celular = celular;
@@ -249,7 +250,7 @@ window.updateUserProfile = async function () {
     const dist = distritoSelect.value;
 
     if (dep && (!prov || !dist)) {
-        alert("Si seleccionas un departamento, debes seleccionar también provincia y distrito.");
+        mostrarMensaje("Si seleccionas un departamento, debes seleccionar también provincia y distrito.", { tipo: "aviso" });
         return;
     }
 
@@ -268,7 +269,7 @@ window.updateUserProfile = async function () {
         toggleProfileEdit();
     } catch (error) {
         console.error("Error al actualizar perfil:", error);
-        alert("Error al actualizar el perfil. Intenta nuevamente.");
+        mostrarMensaje("Error al actualizar el perfil. Intenta nuevamente.", { tipo: "error", titulo: "No se pudo guardar" });
     }
 };
 
@@ -279,19 +280,17 @@ window.changeUserPassword = async function () {
     const confirmPassword = document.getElementById("confirm-password").value;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-        alert("Por favor, completa todos los campos.");
+        mostrarMensaje("Por favor, completa todos los campos.", { tipo: "aviso", titulo: "Faltan datos" });
         return;
     }
     if (newPassword !== confirmPassword) {
-        alert("Las contraseñas no coinciden.");
+        mostrarMensaje("Las contraseñas no coinciden.", { tipo: "aviso", titulo: "Las contraseñas no coinciden" });
         return;
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#.])[A-Za-z\d@$!%*?&#.]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
-        alert(
-            "La nueva contraseña no cumple con los requisitos:\n- 8 caracteres mínimo\n- Mayúscula\n- Minúscula\n- Número\n- Carácter especial"
-        );
+        mostrarMensaje("La nueva contraseña debe tener:\n- 8 caracteres como mínimo\n- Una mayúscula\n- Una minúscula\n- Un número\n- Un carácter especial (@ $ ! % * ? & # .)", { tipo: "aviso", titulo: "Contraseña no válida" });
         return;
     }
 
@@ -311,9 +310,9 @@ window.changeUserPassword = async function () {
     } catch (error) {
         console.error("Error al cambiar contraseña:", error);
         if (error.code === "auth/wrong-password") {
-            alert("La contraseña actual es incorrecta.");
+            mostrarMensaje("La contraseña actual es incorrecta.", { tipo: "error", titulo: "Contraseña actual incorrecta" });
         } else {
-            alert("Error al cambiar la contraseña: " + error.message);
+            mostrarMensaje("Error al cambiar la contraseña: " + error.message, { tipo: "error" });
         }
     }
 };

@@ -5,6 +5,7 @@ import {
   setPersistence,
   browserLocalPersistence
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
+import { mostrarMensaje } from "./ui-modal.js";
 
 const FIRESTORE_URL = "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
 
@@ -44,7 +45,7 @@ async function loginUsuario(e) {
   const boton = document.querySelector("#loginForm .btn-ingresar");
 
   if (!correo || !password) {
-    alert("Por favor, ingresa correo y contraseña.");
+    mostrarMensaje("Por favor, ingresa correo y contraseña.", { tipo: "aviso", titulo: "Faltan datos" });
     return;
   }
 
@@ -71,7 +72,7 @@ async function loginUsuario(e) {
 
     // 3) Solo usuarios con correo verificado
     if (!user.emailVerified) {
-      alert("Debes verificar tu correo antes de iniciar sesión.");
+      mostrarMensaje("Debes verificar tu correo antes de iniciar sesión.", { tipo: "aviso", titulo: "Verifica tu correo" });
       return;
     }
 
@@ -87,11 +88,11 @@ async function loginUsuario(e) {
       error.code === "auth/user-not-found" ||
       error.code === "auth/wrong-password"
     ) {
-      alert("Correo o contraseña incorrectos.");
+      mostrarMensaje("Correo o contraseña incorrectos.", { tipo: "error", titulo: "No se pudo iniciar sesión" });
     } else if (error.code === "auth/too-many-requests") {
-      alert("Demasiados intentos. Espera unos minutos o restablece tu contraseña.");
+      mostrarMensaje("Demasiados intentos. Espera unos minutos o restablece tu contraseña.", { tipo: "aviso", titulo: "Demasiados intentos" });
     } else {
-      alert("Error al iniciar sesión: " + error.message);
+      mostrarMensaje("Error al iniciar sesión: " + error.message, { tipo: "error" });
     }
   } finally {
     if (boton) {

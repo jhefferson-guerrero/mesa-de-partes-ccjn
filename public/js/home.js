@@ -2,6 +2,7 @@
 import { auth, app } from "./firebase-config.js";
 import { db } from "./firebase-db.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
+import { mostrarMensaje } from "./ui-modal.js";
 
 const functions = getFunctions(undefined, "us-central1");
 
@@ -112,14 +113,15 @@ function resetUIAfterSuccess() {
   });
 
   // Vuelve arriba
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  // El que se desplaza es el contenido (la cabecera y el menú quedan fijos)
+  document.querySelector(".main-content")?.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /* ------------ Validación previa a generar ------------ */
 function validateBeforeModal() {
   const asuntoDocumento = document.getElementById("asuntoDocumento").value.trim();
   if (!asuntoDocumento) {
-    alert("Debes completar el asunto del documento.");
+    mostrarMensaje("Debes completar el asunto del documento.", { tipo: "aviso", titulo: "Falta el asunto" });
     return false;
   }
   return true;
@@ -163,26 +165,26 @@ window.showConfirmModal = function showConfirmModal() {
 
   const mainFile = mainInput?.files?.[0] || null;
   if (!mainFile) {
-    alert("Debes adjuntar el Documento principal (PDF).");
+    mostrarMensaje("Debes adjuntar el Documento principal (PDF).", { tipo: "aviso", titulo: "Falta el documento principal" });
     return;
   }
   const isPdf = mainFile.type === "application/pdf" || /\.pdf$/i.test(mainFile.name);
   const maxBytes = 10 * 1024 * 1024;
   if (!isPdf) {
-    alert("El Documento principal debe ser PDF.");
+    mostrarMensaje("El Documento principal debe ser PDF.", { tipo: "aviso", titulo: "Formato no válido" });
     return;
   }
   if (mainFile.size > maxBytes) {
-    alert("El Documento principal supera los 10MB.");
+    mostrarMensaje("El Documento principal supera los 10MB.", { tipo: "aviso", titulo: "Archivo demasiado grande" });
     return;
   }
   const annexFile = document.getElementById("annexDoc")?.files?.[0] || null;
   if (annexFile && annexFile.size > maxBytes) {
-    alert("El Anexo supera los 10MB.");
+    mostrarMensaje("El Anexo supera los 10MB.", { tipo: "aviso", titulo: "Archivo demasiado grande" });
     return;
   }
   if (!emailNotification || !acceptTerms) {
-    alert("Debes autorizar la notificación por correo y aceptar los términos.");
+    mostrarMensaje("Debes autorizar la notificación por correo y aceptar los términos.", { tipo: "aviso", titulo: "Falta tu autorización" });
     return;
   }
 
@@ -264,7 +266,7 @@ window.confirmSend = async function confirmSend() {
 
   const user = auth.currentUser;
   if (!user) {
-    alert("Sesión no válida. Vuelve a iniciar sesión.");
+    mostrarMensaje("Sesión no válida. Vuelve a iniciar sesión.", { tipo: "error", titulo: "Sesión no válida" });
     isSubmitting = false;
     setConfirmBtnState(false, "✓ Aceptar");
     return;
@@ -331,12 +333,12 @@ window.confirmSend = async function confirmSend() {
 
   } catch (err) {
     if (err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password") {
-      alert("Contraseña incorrecta.");
+      mostrarMensaje("Contraseña incorrecta.", { tipo: "error", titulo: "Contraseña incorrecta" });
     } else if (err?.message === "need-password") {
-      alert("Ingresa tu contraseña para confirmar.");
+      mostrarMensaje("Ingresa tu contraseña para confirmar.", { tipo: "aviso", titulo: "Falta la contraseña" });
     } else {
       console.error(err);
-      alert("No se pudo completar el envío. Inténtalo nuevamente.");
+      mostrarMensaje("No se pudo completar el envío. Inténtalo nuevamente.", { tipo: "error", titulo: "No se pudo enviar" });
     }
     isSubmitting = false;
     setConfirmBtnState(false, "✓ Aceptar");    // reactivar solo si falló
