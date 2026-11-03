@@ -1,0 +1,433 @@
+/* ==========================================================================
+   PANTALLAS DE ACCESO (iniciar sesión, recuperar contraseña, crear cuenta)
+   Pantalla dividida: panel de marca a la izquierda y formulario a la derecha.
+   En pantallas pequeñas el panel de marca pasa a ser una cabecera compacta.
+   Se carga después de styles.css y solo afecta a las páginas con body.auth-page.
+   ========================================================================== */
+
+body.auth-page {
+    display: block;
+    height: auto;
+    min-height: 100vh;
+    margin: 0;
+    background: #ffffff;
+    color: #1b2a33;
+}
+
+.auth-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+/* ---------- Panel de marca ---------- */
+.auth-brand {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 3.5rem;
+    color: #ffffff;
+    background: linear-gradient(155deg, #2aa3c6 0%, #1983a3 46%, #0e5368 100%);
+}
+
+.auth-brand::before,
+.auth-brand::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.07);
+    pointer-events: none;
+}
+.auth-brand::before {
+    width: 34rem;
+    height: 34rem;
+    right: -11rem;
+    top: -10rem;
+}
+.auth-brand::after {
+    width: 24rem;
+    height: 24rem;
+    left: -8rem;
+    bottom: -8rem;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.auth-brand-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 28rem;
+}
+
+.auth-logo {
+    display: block;
+    width: 4.6rem;
+    height: 4.6rem;
+    border-radius: 1.2rem;
+    outline: 3px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.25);
+}
+
+.auth-brand-title {
+    margin: 1.6rem 0 0.7rem;
+    font-size: 2.1rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: left;
+}
+
+.auth-brand-text {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.auth-features {
+    margin: 2rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 1rem;
+}
+.auth-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.95);
+}
+.auth-features i {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 0.95rem;
+}
+
+.auth-contact {
+    margin: 2.4rem 0 0;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* ---------- Panel del formulario ---------- */
+.auth-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    background: #ffffff;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 26rem;
+}
+
+.auth-title {
+    margin: 0 0 0.4rem;
+    font-size: 1.8rem;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #1b2a33;
+    text-align: left;
+}
+
+.auth-sub {
+    margin: 0 0 1.8rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #66737b;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    width: 100%;
+}
+
+.auth-field label {
+    display: block;
+    margin-bottom: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #43515a;
+}
+
+.auth-input {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.auth-input > i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.95rem;
+    color: #8a959c;
+    pointer-events: none;
+    transition: color 0.2s;
+}
+
+.auth-input input {
+    width: 100%;
+    height: 3rem;
+    padding: 0 1rem 0 2.8rem;
+    border: 2px solid #dfe5e8;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1b2a33;
+    font-family: inherit;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-input input::placeholder {
+    color: #9aa5ab;
+}
+
+.auth-input input:hover {
+    border-color: #c3ccd1;
+}
+
+.auth-input input:focus {
+    outline: none;
+    border-color: #1983a3;
+    box-shadow: 0 0 0 4px rgba(25, 131, 163, 0.15);
+}
+
+.auth-input:focus-within > i {
+    color: #1983a3;
+}
+
+.auth-input input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+    -webkit-text-fill-color: #1b2a33;
+}
+
+.auth-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.3rem;
+}
+
+.auth-link {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #1983a3;
+    text-decoration: none;
+}
+.auth-link:hover {
+    text-decoration: underline;
+}
+.auth-link:focus-visible {
+    outline: 3px solid rgba(25, 131, 163, 0.35);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* Botón principal */
+.auth-form .btn-ingresar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    height: 3.1rem;
+    margin: 0.3rem 0 0;
+    padding: 0 1.2rem;
+    border: 0;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #1f90b3, #1983a3);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(25, 131, 163, 0.28);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+}
+.auth-form .btn-ingresar:hover:not(:disabled) {
+    background: linear-gradient(180deg, #1a86a8, #146f8a);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px rgba(25, 131, 163, 0.34);
+}
+.auth-form .btn-ingresar:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(25, 131, 163, 0.25);
+}
+.auth-form .btn-ingresar:focus-visible {
+    outline: 3px solid rgba(25, 131, 163, 0.4);
+    outline-offset: 3px;
+}
+.auth-form .btn-ingresar:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Separador y botón secundario */
+.auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin: 1.6rem 0 1.1rem;
+    font-size: 0.85rem;
+    color: #8a959c;
+}
+.auth-divider::before,
+.auth-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e3e8eb;
+}
+
+.auth-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    height: 3rem;
+    border: 2px solid #1983a3;
+    border-radius: 8px;
+    background: transparent;
+    color: #1983a3;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: background 0.2s, color 0.2s;
+}
+.auth-btn-outline:hover {
+    background: #1983a3;
+    color: #ffffff;
+}
+.auth-btn-outline:focus-visible {
+    outline: 3px solid rgba(25, 131, 163, 0.4);
+    outline-offset: 3px;
+}
+
+.auth-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.6rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1983a3;
+    text-decoration: none;
+}
+.auth-back:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Ventana de verificación (crear cuenta) ---------- */
+.auth-page .modal-overlay {
+    background: rgba(15, 30, 38, 0.55);
+    padding: 1rem;
+    box-sizing: border-box;
+}
+.auth-page .modal-content {
+    width: 100%;
+    max-width: 26rem;
+    padding: 1.6rem;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #1b2a33;
+    text-align: left;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
+}
+.auth-page .modal-content p {
+    margin: 0 0 1.3rem;
+    font-size: 0.98rem;
+    line-height: 1.6;
+    color: #43515a;
+}
+.auth-page .modal-content button {
+    width: 100%;
+    height: 3rem;
+    border: 0;
+    border-radius: 8px;
+    background: #1983a3;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.auth-page .modal-content button:hover {
+    background: #146f8a;
+}
+
+/* ---------- Pantallas pequeñas ---------- */
+@media (max-width: 900px) {
+    .auth-shell {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto 1fr;
+    }
+    .auth-brand {
+        justify-content: flex-start;
+        padding: 1.4rem 1.4rem 3rem;
+    }
+    .auth-brand-inner {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        max-width: none;
+    }
+    .auth-logo {
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 0.9rem;
+    }
+    .auth-brand-title {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+    .auth-brand-text,
+    .auth-features,
+    .auth-contact {
+        display: none;
+    }
+    .auth-panel {
+        align-items: flex-start;
+        margin-top: -1.6rem;
+        padding: 2rem 1.4rem 2.4rem;
+        border-radius: 22px 22px 0 0;
+        position: relative;
+        z-index: 1;
+    }
+}
+
+@media (max-height: 640px) and (min-width: 901px) {
+    .auth-sub { margin-bottom: 1.2rem; }
+    .auth-form { gap: 0.9rem; }
+    .auth-divider { margin: 1.1rem 0 0.9rem; }
+    .auth-features { margin-top: 1.4rem; gap: 0.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-form .btn-ingresar,
+    .auth-input input,
+    .auth-btn-outline {
+        transition: none;
+    }
+}

@@ -8,38 +8,75 @@
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js">
     <link rel="modulepreload" href="./js/firebase-config.js">
-    <title>Mesa de Partes</title>
-    <link rel="icon" href="./img/logo.ico">
+    <title>Iniciar sesión · Mesa de Partes</title>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
+    <meta name="theme-color" content="#1983a3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/auth.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    <div class="login-container">
-        <h1>INICIO DE SESIÓN</h1>
-        <form id="loginForm">
-            <div class="input-group">
-                <label for="loginEmail"><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
-                <input type="email" id="loginEmail" class="input-border" required />
-            </div>
-            <div class="input-group password-group">
-                <label for="loginPassword"><i class="fa-solid fa-lock"></i> Contraseña</label>
-                <div class="password-wrapper">
-                    <input type="password" id="loginPassword" required />
-                </div>
-            </div>
+<body class="auth-page">
+    <main class="auth-shell">
 
-            <button class="btn-ingresar" type="submit"><i class="fa-solid fa-door-open"></i> Ingresar</button>
-        </form>
-        
-        <div class="links">
-            <a href="verify-email.html"  class="link-register"><i class="fa-solid fa-plus"></i> Regístrate aquí</a>
-            <a href="forgot-password.html" class="link-forgot">Olvidé mi contraseña</a>
-        </div>
-        
-    </div>
+        <!-- Panel de marca -->
+        <aside class="auth-brand">
+            <div class="auth-brand-inner">
+                <img class="auth-logo" src="./img/favicon.svg" alt="" width="74" height="74">
+                <h1 class="auth-brand-title">Mesa de Partes Virtual</h1>
+                <p class="auth-brand-text">Registra tus solicitudes y adjunta tus documentos en línea, desde cualquier lugar.</p>
+                <ul class="auth-features">
+                    <li><i class="fa-solid fa-file-circle-check" aria-hidden="true"></i> Envía tus solicitudes con documentos adjuntos</li>
+                    <li><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Consulta el historial de tus trámites</li>
+                    <li><i class="fa-solid fa-user-pen" aria-hidden="true"></i> Mantén tus datos al día desde tu perfil</li>
+                </ul>
+                <p class="auth-contact">
+                    Central Telefónica: (01) 612-8230<br>
+                    WhatsApp: 966 429 596
+                </p>
+            </div>
+        </aside>
+
+        <!-- Formulario -->
+        <section class="auth-panel">
+            <div class="auth-card">
+                <h2 class="auth-title">Iniciar sesión</h2>
+                <p class="auth-sub">Ingresa con tu correo y tu contraseña.</p>
+
+                <form id="loginForm" class="auth-form">
+                    <div class="auth-field">
+                        <label for="loginEmail">Correo electrónico</label>
+                        <div class="auth-input">
+                            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                            <input type="email" id="loginEmail" placeholder="tucorreo@ejemplo.com" autocomplete="username" inputmode="email" required />
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="loginPassword">Contraseña</label>
+                        <div class="auth-input password-wrapper">
+                            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                            <input type="password" id="loginPassword" placeholder="Tu contraseña" autocomplete="current-password" required />
+                        </div>
+                    </div>
+
+                    <div class="auth-row">
+                        <a href="forgot-password.html" class="auth-link">¿Olvidaste tu contraseña?</a>
+                    </div>
+
+                    <button class="btn-ingresar" type="submit"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Ingresar</button>
+                </form>
+
+                <div class="auth-divider"><span>¿Aún no tienes una cuenta?</span></div>
+                <a href="verify-email.html" class="auth-btn-outline"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Crear una cuenta</a>
+            </div>
+        </section>
+
+    </main>
 
     <script type="module" src="./js/login-guard.js"></script>
     <script type="module" src="./js/login.js"></script>
