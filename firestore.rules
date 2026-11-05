@@ -46,13 +46,13 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // Solicitudes: cada usuario solo ve y crea las suyas. No se editan ni se borran.
+    // Solicitudes: cada usuario solo ve las suyas. NADIE las crea ni las modifica desde el navegador:
+    // las registra únicamente el servidor (función registrarSolicitud), que valida los datos,
+    // asigna el número de expediente y verifica los archivos. Así no se pueden inventar campos,
+    // números de expediente ni estados.
     match /ficha-solicitud/{solicitudId} {
       allow read: if signedIn() && resource.data.userId == request.auth.uid;
-      allow create: if verifiedUser()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.correo == request.auth.token.email;
-      allow update, delete: if false;
+      allow create, update, delete: if false;
     }
 
     // Todo lo demás, cerrado.

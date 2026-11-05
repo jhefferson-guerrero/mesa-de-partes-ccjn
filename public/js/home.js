@@ -1,8 +1,8 @@
 // /js/home.js
 import { auth, app } from "./firebase-config.js";
-import { db } from "./firebase-db.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js";
 import { mostrarMensaje } from "./ui-modal.js";
+import { problemaConArchivo, MAX_ARCHIVOS } from "./detalle-ui.js";
 
 const functions = getFunctions(undefined, "us-central1");
 
@@ -13,15 +13,9 @@ import {
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import {
-  addDoc,
-  collection,
-  serverTimestamp,
-} from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
-import {
   getStorage,
   ref,
   uploadBytes,
-  getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js";
 
 const storage = getStorage(app);
@@ -64,30 +58,104 @@ function setDocFieldsDisabled(disabled) {
   [tipo, sub, asunto].forEach((el) => el && (el.disabled = disabled));
 }
 
-function clearUploads() {
-  // Limpia principal
-  const mainInput = document.getElementById("mainDoc");
-  if (mainInput) {
-    mainInput.value = "";
-    const disp = mainInput.parentElement.querySelector(".upload-display");
-    if (disp) disp.value = "";
-    const box = document.getElementById("mainDoc-file");
-    if (box) box.style.display = "none";
+/* ------------ Anexos: hasta 10 archivos ------------ */
+const anexos = []; // File[] elegidos como anexos
+const mismoArchivo = (a, b) => a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+
+function crearTarjetaAnexo(archivo, indice) {
+  const tarjeta = document.createElement("div");
+  tarjeta.className = "uploaded-file";
+
+  const tipo = iconoDeArchivo(archivo.name);
+  const caja = document.createElement("span");
+  caja.className = "file-icon " + tipo.clase;
+  const icono = document.createElement("i");
+  icono.className = "fa-solid " + tipo.icono;
+  icono.setAttribute("aria-hidden", "true");
+  caja.appendChild(icono);
+
+  const meta = document.createElement("span");
+  meta.className = "file-meta";
+  const nombre = document.createElement("span");
+  nombre.className = "file-name";
+  nombre.textContent = archivo.name;
+  nombre.title = archivo.name;
+  const peso = document.createElement("span");
+  peso.className = "file-size";
+  peso.textContent = formatearTamano(archivo.size);
+  meta.append(nombre, peso);
+
+  const quitar = document.createElement("button");
+  quitar.type = "button";
+  quitar.className = "btn-delete";
+  quitar.title = "Quitar archivo";
+  quitar.setAttribute("aria-label", "Quitar " + archivo.name);
+  const tacho = document.createElement("i");
+  tacho.className = "fa-solid fa-trash";
+  tacho.setAttribute("aria-hidden", "true");
+  quitar.appendChild(tacho);
+  quitar.addEventListener("click", () => {
+    anexos.splice(indice, 1);
+    renderAnexos();
+  });
+
+  tarjeta.append(caja, meta, quitar);
+  return tarjeta;
+}
+
+function renderAnexos() {
+  const lista = document.getElementById("annexDoc-lista");
+  if (lista) lista.replaceChildren(...anexos.map(crearTarjetaAnexo));
+}
+
+function agregarAnexos(archivos) {
+  const problemas = [];
+  for (const f of Array.from(archivos || [])) {
+    const motivo = problemaConArchivo(f);
+    if (motivo) { problemas.push(motivo); continue; }
+    if (anexos.some((x) => mismoArchivo(x, f))) { problemas.push(`"${f.name}" ya está en la lista.`); continue; }
+    if (anexos.length >= MAX_ARCHIVOS) { problemas.push(`Solo puedes adjuntar hasta ${MAX_ARCHIVOS} anexos.`); break; }
+    anexos.push(f);
   }
-  // Limpia anexo
-  const annexInput = document.getElementById("annexDoc");
-  if (annexInput) {
-    annexInput.value = "";
-    const disp = annexInput.parentElement.querySelector(".upload-display");
-    if (disp) disp.value = "";
-    const box = document.getElementById("annexDoc-file");
-    if (box) box.style.display = "none";
+  renderAnexos();
+  if (problemas.length) {
+    mostrarMensaje(problemas.map((p) => "- " + p).join("\n"), { tipo: "aviso", titulo: "Algunos archivos no se agregaron" });
   }
 }
 
+window.handleAnnexUpload = function handleAnnexUpload(input) {
+  agregarAnexos(input.files);
+  input.value = ""; // permite volver a elegir el mismo archivo si se quitó
+};
+
+function clearUploads() {
+  // Quita el documento principal y todos los anexos (y vuelve a mostrar la zona del principal)
+  if (document.getElementById("mainDoc")) window.removeFile("mainDoc");
+  anexos.length = 0;
+  renderAnexos();
+}
+
+/* ------------ Estado del botón "Guardar y continuar" ------------
+   - Sin guardar: botón activo "Guardar y continuar".
+   - Guardado: el botón queda desactivado como "✓ Datos guardados" y aparece "Modificar datos".
+   Así no se puede repetir el paso y, si hace falta cambiar algo, hay una salida clara. */
+function setDatosGuardados(guardado) {
+  const guardar = document.getElementById("btnGuardar");
+  const modificar = document.getElementById("btnModificar");
+  if (guardar) {
+    guardar.disabled = guardado;
+    guardar.classList.toggle("guardado", guardado);
+    guardar.innerHTML = guardado
+      ? '<i class="fa-solid fa-check" aria-hidden="true"></i> Datos guardados'
+      : "Guardar y continuar";
+  }
+  if (modificar) modificar.style.display = guardado ? "inline-flex" : "none";
+}
+
 function resetUIAfterSuccess() {
-  // Rehabilita los campos del documento
+  // Rehabilita los campos del documento y el botón de guardar
   setDocFieldsDisabled(false);
+  setDatosGuardados(false);
 
   // Resetea selects/textarea a valores iniciales
   const { tipo, sub, asunto } = getDocFields();
@@ -131,10 +199,19 @@ function validateBeforeModal() {
 window.handleGuardarContinuar = function handleGuardarContinuar() {
   if (!validateBeforeModal()) return;
 
-  // Bloquea “DATOS DEL DOCUMENTO” para que no se editen más
-  setDocFieldsDisabled(true);
-
+  // Los datos se bloquean recién cuando la persona confirma en la ventana (acceptGenerate).
+  // Si cancela, no pasa nada y puede seguir editando.
   showGenerateModal();
+};
+
+/* ------------ Botón Modificar datos ------------ */
+window.handleModificarDatos = function handleModificarDatos() {
+  setDocFieldsDisabled(false);
+  setDatosGuardados(false);
+  // Se oculta el paso 2; los archivos elegidos se conservan
+  const add = document.getElementById("additionalFields");
+  if (add) add.style.display = "none";
+  document.getElementById("asuntoDocumento")?.focus();
 };
 
 /* ------------ Modales ------------ */
@@ -144,6 +221,11 @@ function showGenerateModal() {
 
 window.acceptGenerate = function acceptGenerate() {
   closeModal("generateModal");
+
+  // Bloquea “DATOS DEL DOCUMENTO” y deja el botón como "Datos guardados"
+  setDocFieldsDisabled(true);
+  setDatosGuardados(true);
+
   document.getElementById("additionalFields").style.display = "block";
 
   const timeline = document.querySelector(".timeline");
@@ -178,11 +260,6 @@ window.showConfirmModal = function showConfirmModal() {
     mostrarMensaje("El Documento principal supera los 10MB.", { tipo: "aviso", titulo: "Archivo demasiado grande" });
     return;
   }
-  const annexFile = document.getElementById("annexDoc")?.files?.[0] || null;
-  if (annexFile && annexFile.size > maxBytes) {
-    mostrarMensaje("El Anexo supera los 10MB.", { tipo: "aviso", titulo: "Archivo demasiado grande" });
-    return;
-  }
   if (!emailNotification || !acceptTerms) {
     mostrarMensaje("Debes autorizar la notificación por correo y aceptar los términos.", { tipo: "aviso", titulo: "Falta tu autorización" });
     return;
@@ -200,28 +277,115 @@ window.closeModal = function closeModal(modalId) {
 };
 
 /* ------------ UI de archivos ------------ */
+function formatearTamano(bytes) {
+  if (bytes < 1024) return bytes + " B";
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+// Icono y color según el tipo de archivo
+function iconoDeArchivo(nombre) {
+  const ext = (nombre.split(".").pop() || "").toLowerCase();
+  if (ext === "pdf") return { clase: "pdf", icono: "fa-file-pdf" };
+  if (ext === "doc" || ext === "docx") return { clase: "doc", icono: "fa-file-word" };
+  if (ext === "xls" || ext === "xlsx") return { clase: "xls", icono: "fa-file-excel" };
+  return { clase: "", icono: "fa-file" };
+}
+
+// Al elegir un archivo: se oculta la zona de carga y aparece una tarjeta con nombre, tamaño y botón para quitarlo
 window.handleFileUpload = function handleFileUpload(input, fieldId) {
   const file = input.files?.[0];
-  if (file) {
-    const uploadDisplay = input.parentElement.querySelector(".upload-display");
-    const fileDiv = document.getElementById(fieldId + "-file");
-    const fileName = fileDiv.querySelector(".file-name");
+  if (!file) return;
 
-    uploadDisplay.value = file.name;
-    fileName.textContent = file.name;
-    fileDiv.style.display = "flex";
-  }
+  const tarjeta = document.getElementById(fieldId + "-file");
+  const zona = document.getElementById(fieldId + "-zone");
+  if (!tarjeta) return;
+
+  tarjeta.querySelector(".file-name").textContent = file.name;
+  tarjeta.querySelector(".file-size").textContent = formatearTamano(file.size);
+  const tipo = iconoDeArchivo(file.name);
+  const caja = tarjeta.querySelector(".file-icon");
+  caja.className = "file-icon " + tipo.clase;
+  caja.querySelector("i").className = "fa-solid " + tipo.icono;
+
+  tarjeta.style.display = "flex";
+  if (zona) zona.style.display = "none";
 };
 
 window.removeFile = function removeFile(fieldId) {
   const input = document.getElementById(fieldId);
-  const uploadDisplay = input.parentElement.querySelector(".upload-display");
-  const fileDiv = document.getElementById(fieldId + "-file");
+  const tarjeta = document.getElementById(fieldId + "-file");
+  const zona = document.getElementById(fieldId + "-zone");
 
-  input.value = "";
-  if (uploadDisplay) uploadDisplay.value = "";
-  if (fileDiv) fileDiv.style.display = "none";
+  if (input) input.value = "";
+  if (tarjeta) tarjeta.style.display = "none";
+  if (zona) zona.style.display = "";
 };
+
+/* ------------ Arrastrar y soltar archivos ------------ */
+["mainDoc"].forEach((id) => {
+  const zona = document.getElementById(id + "-zone");
+  const input = document.getElementById(id);
+  if (!zona || !input) return;
+
+  ["dragenter", "dragover"].forEach((ev) =>
+    zona.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zona.classList.add("arrastrando");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    zona.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zona.classList.remove("arrastrando");
+    })
+  );
+  zona.addEventListener("drop", (e) => {
+    const archivo = e.dataTransfer?.files?.[0];
+    if (!archivo) return;
+    const permitidos = input.accept.split(",").map((x) => x.trim().toLowerCase());
+    const ext = "." + (archivo.name.split(".").pop() || "").toLowerCase();
+    if (!permitidos.includes(ext)) {
+      mostrarMensaje(`Este campo acepta solo: ${permitidos.join(", ")}`, { tipo: "aviso", titulo: "Formato no válido" });
+      return;
+    }
+    const lista = new DataTransfer();
+    lista.items.add(archivo);
+    input.files = lista.files;
+    window.handleFileUpload(input, id);
+  });
+  // Un clic en la zona (fuera del botón) también abre el selector de archivos
+  zona.addEventListener("click", (e) => {
+    if (!e.target.closest("button")) input.click();
+  });
+});
+
+// Zona de anexos: acepta varios archivos a la vez
+(() => {
+  const zona = document.getElementById("annexDoc-zone");
+  const input = document.getElementById("annexDoc");
+  if (!zona || !input) return;
+  ["dragenter", "dragover"].forEach((ev) =>
+    zona.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zona.classList.add("arrastrando");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    zona.addEventListener(ev, (e) => {
+      e.preventDefault();
+      zona.classList.remove("arrastrando");
+    })
+  );
+  zona.addEventListener("drop", (e) => agregarAnexos(e.dataTransfer && e.dataTransfer.files));
+  zona.addEventListener("click", (e) => {
+    if (!e.target.closest("button")) input.click();
+  });
+})();
+
+// Si se suelta un archivo fuera de la zona, el navegador no debe abrirlo y sacar a la persona de la página
+window.addEventListener("dragover", (e) => e.preventDefault());
+window.addEventListener("drop", (e) => e.preventDefault());
 
 /* ------------ Util: forzar re-auth (evita subir con clave mala) ------------ */
 async function ensureRecentLogin(maxAgeSec = 0) {
@@ -237,11 +401,65 @@ async function ensureRecentLogin(maxAgeSec = 0) {
   await reauthenticateWithCredential(user, cred);
 }
 
-// Modal de éxito
-window.showSuccessModal = function showSuccessModal(msg = "Tu documento fue enviado exitosamente.") {
-  const text = document.getElementById("successMessage");
-  if (text) text.textContent = msg;
+/* ------------ Ventana de éxito: número de expediente y cargo en PDF ------------ */
+let cargoActual = null; // { nombre, base64 } del último envío
+
+function descargarArchivoBase64(nombre, base64, tipo = "application/pdf") {
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const url = URL.createObjectURL(new Blob([bytes], { type: tipo }));
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+window.showSuccessModal = function showSuccessModal(resultado = {}, correo = "") {
+  cargoActual = resultado.cargo || null;
+
+  document.getElementById("successExpediente").textContent = resultado.expediente || "—";
+
+  // Mensaje según lo que realmente pasó (sin prometer lo que no ocurrió)
+  let mensaje;
+  if (resultado.correoCiudadano && correo) {
+    mensaje = `Te enviamos el cargo de recepción a ${correo}. Guarda este número para cualquier consulta.`;
+  } else if (cargoActual) {
+    mensaje = "No pudimos enviarte el correo, pero tu solicitud quedó registrada. Descarga tu cargo ahora; también lo tendrás en Mis Trámites.";
+  } else {
+    mensaje = "Tu solicitud quedó registrada con este número. No pudimos generar el cargo en este momento; guárdalo para cualquier consulta.";
+  }
+  document.getElementById("successMessage").textContent = mensaje;
+
+  const btnCargo = document.getElementById("btnDescargarCargo");
+  if (btnCargo) btnCargo.style.display = cargoActual ? "inline-flex" : "none";
+
   document.getElementById("successModal").style.display = "flex";
+  (cargoActual ? btnCargo : document.getElementById("btnIrTramites"))?.focus();
+};
+
+window.descargarCargoActual = function descargarCargoActual() {
+  if (cargoActual) descargarArchivoBase64(cargoActual.nombre, cargoActual.base64);
+};
+
+window.copiarExpediente = async function copiarExpediente() {
+  const texto = document.getElementById("successExpediente").textContent;
+  const btn = document.getElementById("btnCopiarExpediente");
+  try {
+    await navigator.clipboard.writeText(texto);
+    btn.classList.add("copiado");
+    btn.title = "¡Copiado!";
+    setTimeout(() => { btn.classList.remove("copiado"); btn.title = "Copiar número"; }, 1800);
+  } catch {
+    mostrarMensaje("No se pudo copiar. Selecciona el número y cópialo manualmente.", { tipo: "aviso", titulo: "No se pudo copiar" });
+  }
+};
+
+window.irAMisTramites = function irAMisTramites() {
+  // La lista guardada en la pestaña no incluye el trámite nuevo: se descarta para que se vuelva a leer
+  Object.keys(sessionStorage).filter((k) => k.startsWith("tramites:")).forEach((k) => sessionStorage.removeItem(k));
+  window.location.href = "procedure.html";
 };
 
 window.closeSuccessAndReset = function closeSuccessAndReset() {
@@ -281,61 +499,59 @@ window.confirmSend = async function confirmSend() {
     const subDocumento  = document.getElementById("subDocumento").value;
     const asunto        = document.getElementById("asuntoDocumento").value.trim();
     const mainFile      = document.getElementById("mainDoc")?.files?.[0] || null;
-    const annexFile     = document.getElementById("annexDoc")?.files?.[0] || null;
 
-    // 3) Subir y guardar
-    let mainUrl=null, mainMeta=null, annexUrl=null, annexMeta=null;
+    // 3) Subir los archivos a la carpeta del usuario
+    if (!mainFile) throw new Error("falta-principal");
+    const basePath = `ficha-solicitudes/${user.uid}/${Date.now()}`;
 
-    const now = Date.now();
-    const basePath = `ficha-solicitudes/${user.uid}/${now}`;
+    const mainSnap = await uploadBytes(
+      ref(storage, `${basePath}/principal_${mainFile.name}`),
+      mainFile,
+      { contentType: mainFile.type || "application/pdf" }
+    );
+    const anexosSubidos = await Promise.all(
+      anexos.map((f, i) =>
+        uploadBytes(
+          ref(storage, `${basePath}/anexo${i + 1}_${f.name}`),
+          f,
+          { contentType: f.type || "application/octet-stream" }
+        )
+      )
+    );
 
-    if (mainFile) {
-      const mainRef = ref(storage, `${basePath}/principal_${mainFile.name}`);
-      const mainSnap = await uploadBytes(mainRef, mainFile, { contentType: mainFile.type || "application/pdf" });
-      mainUrl = await getDownloadURL(mainRef);
-      mainMeta = { name: mainFile.name, contentType: mainFile.type || "application/pdf", size: mainFile.size, path: mainSnap.metadata.fullPath };
-    }
-
-    if (annexFile) {
-      const annexRef = ref(storage, `${basePath}/anexo_${annexFile.name}`);
-      const annexSnap = await uploadBytes(annexRef, annexFile, { contentType: annexFile.type || "application/octet-stream" });
-      annexUrl = await getDownloadURL(annexRef);
-      annexMeta = { name: annexFile.name, contentType: annexFile.type || "application/octet-stream", size: annexFile.size, path: annexSnap.metadata.fullPath };
-    }
-
-    const solicitudRef = await addDoc(collection(db, "ficha-solicitud"), {
-      userId: user.uid,
-      correo: user.email,
+    // 4) Registrar en el servidor: asigna el número de expediente, verifica los archivos,
+    //    genera el cargo en PDF y envía los correos. El navegador ya no escribe en la base de datos.
+    await user.getIdToken(true); // token nuevo, con la contraseña recién confirmada
+    const registrarSolicitud = httpsCallable(functions, "registrarSolicitud");
+    const { data: resultado } = await registrarSolicitud({
       tipoDocumento,
       subDocumento,
       asunto,
-      documentos: {
-        principal: mainUrl ? { url: mainUrl, ...mainMeta } : null,
-        anexo: annexUrl ? { url: annexUrl, ...annexMeta } : null,
-      },
-      autorizacionCorreo: true,
-      terminosAceptados: true,
-      creadoEn: serverTimestamp(),
+      principal: { path: mainSnap.metadata.fullPath },
+      anexos: anexosSubidos.map((s) => ({ path: s.metadata.fullPath })),
+      autorizacionCorreo: document.getElementById("emailNotification").checked,
+      terminosAceptados: document.getElementById("acceptTerms").checked,
     });
 
-    // 4) Notificación (el servidor arma el correo a partir de la solicitud guardada)
-    try {
-      const enviarSolicitud = httpsCallable(functions, "enviarSolicitud");
-      await enviarSolicitud({ solicitudId: solicitudRef.id });
-      console.log("enviarSolicitud: llamada completada correctamente");
-    } catch(e) {
-      console.warn("No se pudo enviar el correo (continúo igual):", e);
-    }
-
-    // 5) Cerrar y éxito
+    // 5) Cerrar y mostrar el número de expediente
+    document.getElementById("confirmPassword").value = "";
     closeModal("confirmModal");
-    showSuccessModal("Tu documento fue enviado correctamente. Se generó tu ficha de solicitud y se guardaron tus archivos.");
+    showSuccessModal(resultado, user.email);
 
   } catch (err) {
-    if (err?.code === "auth/invalid-credential" || err?.code === "auth/wrong-password") {
+    const codigo = String(err?.code || "");
+    if (codigo === "auth/invalid-credential" || codigo === "auth/wrong-password") {
       mostrarMensaje("Contraseña incorrecta.", { tipo: "error", titulo: "Contraseña incorrecta" });
     } else if (err?.message === "need-password") {
       mostrarMensaje("Ingresa tu contraseña para confirmar.", { tipo: "aviso", titulo: "Falta la contraseña" });
+    } else if (codigo === "auth/too-many-requests") {
+      mostrarMensaje("Demasiados intentos con contraseña incorrecta. Espera unos minutos e inténtalo de nuevo.", { tipo: "aviso", titulo: "Demasiados intentos" });
+    } else if (codigo === "functions/resource-exhausted") {
+      mostrarMensaje("Hiciste demasiados envíos seguidos. Inténtalo de nuevo más tarde.", { tipo: "aviso", titulo: "Límite de envíos" });
+    } else if (codigo === "functions/invalid-argument" || codigo === "functions/failed-precondition") {
+      // El servidor explica qué falta o qué está mal (archivo inválido, asunto, etc.)
+      const detalle = String(err.message || "").replace(/^reauth-required:\s*/, "");
+      mostrarMensaje(detalle || "Revisa los datos e inténtalo nuevamente.", { tipo: "aviso", titulo: "Revisa los datos" });
     } else {
       console.error(err);
       mostrarMensaje("No se pudo completar el envío. Inténtalo nuevamente.", { tipo: "error", titulo: "No se pudo enviar" });

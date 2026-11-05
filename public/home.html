@@ -17,7 +17,7 @@
     <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
     <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
-    <meta name="theme-color" content="#1983a3">
+    <meta name="theme-color" content="#002b4e">
     <link rel="preload" href="css/normalize.css" as="style">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,28 +25,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preload" href="css/main.css" as="style">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/menu-toggle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">  
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <span class="text-title">CJN</span>
-            </div>
-            <div class="header-center">
-                <span class="mesa-partes-text">MESA DE PARTES VIRTUAL</span>
-            </div>
-            <div class="header-right">
-                <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                    <span class="logout-text">Cerrar sesión</span>
-                </button>
-            </div>
-        </header>
-
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <img class="sidebar-logo" src="./img/favicon.svg" alt="" width="34" height="34">
+                <div class="sidebar-brand">
+                    <strong>Mesa de Partes</strong>
+                    <small>Virtual · CJN</small>
+                </div>
+            </div>
             <div class="menu-item" onclick="window.location.href='procedure.html'">
                 <span class="icon"><i class="fa-solid fa-house"></i></span>
                 <span class="text"><strong>MIS TRÁMITES</strong></span>
@@ -60,10 +53,19 @@
                 <span class="text"><strong>MI PERFIL</strong></span>
             </div>  
             <div class="contact-info">
-                <p><strong>Central Telefónica: (01) 612-8230</strong></p>
-                <p class="whatsapp"><strong>WhatsApp: 966 429 596</strong></p>
+                <p><i class="fa-solid fa-phone" aria-hidden="true"></i><span class="contact-text"><strong>Central Telefónica: (01) 999-9999</strong></span></p>
+                <p class="whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span class="contact-text"><strong>WhatsApp: 999 999 999</strong></span></p>
             </div>
+            <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                <span class="logout-text">Cerrar sesión</span>
+            </button>
         </aside>
+        <script src="./js/menu-bandeja.js"></script>
+        <!-- Pestaña con flecha sobre el borde del menú: contrae o expande -->
+        <button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Contraer menú" title="Contraer menú">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
 
         <!-- Main Content -->
         <main class="main-content">
@@ -134,7 +136,10 @@
 
                         <!-- Submit Button -->
                         <div class="form-actions">
-                            <button type="button" class="btn-submit" onclick="handleGuardarContinuar()">Guardar y continuar</button>
+                            <button type="button" id="btnGuardar" class="btn-submit" onclick="handleGuardarContinuar()">Guardar y continuar</button>
+                            <button type="button" id="btnModificar" class="btn-cancel btn-modificar" onclick="handleModificarDatos()" style="display: none;">
+                                <i class="fa-solid fa-pen" aria-hidden="true"></i> Modificar datos
+                            </button>
                         </div>
 
                         <!-- Additional Fields (Hidden initially) -->
@@ -150,59 +155,70 @@
                                     <h2>DOCUMENTOS ADJUNTOS</h2>
                                 </div>
                                 
-                                <p class="section-description">Puedes subir tu solicitud en documento en anexo sube los documentos que acrediten.</p>
+                                <p class="section-description">Adjunta tu solicitud en PDF y, si lo necesitas, un anexo que acredite lo solicitado.</p>
                                 
                                 <div class="upload-section">
-                                    <label>Documento principal solo en formato PDF (tamaño máximo 10MB)</label>
-                                    <div class="upload-field">
-                                        <input type="file" id="mainDoc" accept=".pdf" style="display: none;" onchange="handleFileUpload(this, 'mainDoc')">
-                                        <input type="text" class="form-control upload-display" readonly>
-                                        <button type="button" class="btn-elegir" onclick="document.getElementById('mainDoc').click()">
-                                            <i class="fa-solid fa-download" style="color: #ffffff;"></i> <strong>Elegir</strong>
-                                        </button>
+                                    <div class="upload-head">
+                                        <span class="upload-title">Documento principal</span>
+                                    </div>
+                                    <p class="upload-hint">Obligatorio · Solo PDF, máximo 10 MB</p>
+                                    <input type="file" id="mainDoc" accept=".pdf" hidden onchange="handleFileUpload(this, 'mainDoc')">
+                                    <div class="dropzone" id="mainDoc-zone">
+                                        <span class="dz-text">Arrastra tu archivo aquí o búscalo en tu equipo</span>
+                                        <button type="button" class="btn-elegir" onclick="document.getElementById('mainDoc').click()"><i class="fa-solid fa-folder-open" aria-hidden="true"></i> Elegir archivo</button>
                                     </div>
                                     <div id="mainDoc-file" class="uploaded-file" style="display: none;">
-                                        <span class="file-icon"><i class="fa-solid fa-file" style="color: #000000;"></i></span>
-                                        <span class="file-name"></span>
-                                        <button type="button" class="btn-delete" onclick="removeFile('mainDoc')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                                        <span class="file-icon"><i class="fa-solid fa-file" aria-hidden="true"></i></span>
+                                        <span class="file-meta">
+                                            <span class="file-name"></span>
+                                            <span class="file-size"></span>
+                                        </span>
+                                        <button type="button" class="btn-delete" onclick="removeFile('mainDoc')" title="Quitar archivo" aria-label="Quitar archivo"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </div>
 
                                 <div class="upload-section">
-                                    <label>Documento anexo Máximo 10 anexos. Archivos PDF, WORD, EXCEL (tamaño máximo 10MB)</label>
-                                    <div class="upload-field">
-                                        <input type="file" id="annexDoc" accept=".pdf,.doc,.docx,.xls,.xlsx" style="display: none;" onchange="handleFileUpload(this, 'annexDoc')">
-                                        <input type="text" class="form-control upload-display" readonly>
-                                        <button type="button" class="btn-elegir" onclick="document.getElementById('annexDoc').click()">
-                                            <i class="fa-solid fa-download" style="color: #ffffff;"></i> <strong>Elegir</strong>
-                                        </button>
+                                    <div class="upload-head">
+                                        <span class="upload-title">Documentos anexos</span>
                                     </div>
-                                    <div id="annexDoc-file" class="uploaded-file" style="display: none;">
-                                        <span class="file-icon"><i class="fa-solid fa-file" style="color: #000000;"></i></span>
-                                        <span class="file-name"></span>
-                                        <button type="button" class="btn-delete" onclick="removeFile('annexDoc')"><i class="fa-solid fa-trash" style="color: #ffffff;"></i></button>
+                                    <p class="upload-hint">Opcional · PDF, Word o Excel, máximo 10 MB cada uno · hasta 10 archivos</p>
+                                    <input type="file" id="annexDoc" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple hidden onchange="handleAnnexUpload(this)">
+                                    <div class="dropzone" id="annexDoc-zone">
+                                        <span class="dz-text">Arrastra tus archivos aquí o búscalos en tu equipo</span>
+                                        <button type="button" class="btn-elegir" onclick="document.getElementById('annexDoc').click()"><i class="fa-solid fa-folder-open" aria-hidden="true"></i> Elegir archivos</button>
                                     </div>
+                                    <div id="annexDoc-lista" class="lista-anexos" aria-live="polite"></div>
                                 </div>
                             </div>
 
-                            <!-- Autorización de Notificación -->
-                            <div class="notification-section">
-                                <h3>AUTORIZACIÓN DE NOTIFICACIÓN</h3>
-                                <div class="checkbox-group">
+                            <!-- Autorizaciones y términos -->
+                            <div class="consent-section">
+                                <div class="section-header">
+                                    <div class="section-icon"><i class="fa-solid fa-shield-halved" style="color: #ffffff;"></i></div>
+                                    <h2>AUTORIZACIONES</h2>
+                                </div>
+
+                                <label class="consent-item" for="emailNotification">
                                     <input type="checkbox" id="emailNotification">
-                                    <label for="emailNotification">Autorizo la notificación por correo electrónico</label>
-                                </div>
-                            </div>
+                                    <span class="consent-text">
+                                        <strong>Notificación por correo electrónico</strong>
+                                        <small>Autorizo que me notifiquen por correo electrónico sobre el avance de mi trámite.</small>
+                                    </span>
+                                </label>
 
-                            <!-- Términos y Condiciones -->
-                            <div class="terms-section">
-                                <h3>TÉRMINOS Y CONDICIONES</h3>
-                                <div class="checkbox-group">
+                                <label class="consent-item" for="acceptTerms">
                                     <input type="checkbox" id="acceptTerms">
-                                    <label for="acceptTerms">He leído y acepto los <a href="#" onclick="showTermsModal()">términos y condiciones</a></label>
-                                </div>                                
+                                    <span class="consent-text">
+                                        <strong>Términos y condiciones</strong>
+                                        <small>He leído y acepto los <a href="#" onclick="showTermsModal(); return false;">términos y condiciones</a> del servicio.</small>
+                                    </span>
+                                </label>
+
                                 <div class="final-actions">
-                                    <button type="button" class="btn-submit" onclick="showConfirmModal()">Enviar</button>
+                                    <p class="consent-note">Para enviar te pediremos tu contraseña como firma electrónica.</p>
+                                    <button type="button" class="btn-submit btn-enviar" onclick="showConfirmModal()">
+                                        <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar solicitud
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -297,25 +313,43 @@
         </div>
     </div> 
 
-    <!-- Modal Envío Exitoso -->
+    <!-- Modal Envío Exitoso: número de expediente y cargo en PDF -->
     <div id="successModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-        <span class="modal-icon"><i class="fa-solid fa-circle-check"></i></span>
-        <h3>Solicitud enviada</h3>
+        <div class="modal-content success-card" role="dialog" aria-modal="true" aria-labelledby="successTitulo">
+            <div class="success-top">
+                <span class="success-check"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                <h3 id="successTitulo">Solicitud registrada</h3>
+            </div>
+
+            <div class="expediente-box">
+                <div class="expediente-datos">
+                    <span class="expediente-rotulo">N.° DE EXPEDIENTE</span>
+                    <strong id="successExpediente">—</strong>
+                </div>
+                <button type="button" id="btnCopiarExpediente" class="btn-copiar" onclick="copiarExpediente()" title="Copiar número" aria-label="Copiar número de expediente">
+                    <i class="fa-regular fa-copy" aria-hidden="true"></i>
+                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <p id="successMessage" class="success-note"></p>
+
+            <div class="success-actions">
+                <button type="button" id="btnDescargarCargo" class="btn-submit" onclick="descargarCargoActual()">
+                    <i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i> Descargar cargo (PDF)
+                </button>
+                <button type="button" id="btnIrTramites" class="btn-cancel" onclick="irAMisTramites()">
+                    <i class="fa-solid fa-list-check" aria-hidden="true"></i> Ir a Mis Trámites
+                </button>
+                <button type="button" class="btn-texto" onclick="closeSuccessAndReset()">Hacer otra solicitud</button>
+            </div>
         </div>
-        <div class="modal-body">
-        <p id="successMessage">Tu documento fue enviado exitosamente.</p>
-        </div>
-        <div class="modal-actions">
-        <button class="btn-accept" onclick="closeSuccessAndReset()">✓ Aceptar</button>
-        </div>
-    </div>
     </div>
 
     <script type="module" src="./js/load-user.js"></script>
     <script type="module" src="./js/home.js"></script>
-    <script type="module" src="./js/session-guard.js"></script>    
+    <script type="module" src="./js/session-guard.js"></script>
+    <script type="module" src="./js/rol.js"></script>    
     <script type="module" src="./js/ui-password.js"></script>
 </body>
 </html>

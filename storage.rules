@@ -7,15 +7,38 @@ service firebase.storage {
     match /ficha-solicitudes/{uid}/{allPaths=**} {
       allow read: if request.auth != null && request.auth.uid == uid;
 
+      // Solo se pueden subir archivos con el nombre que usa la aplicación:
+      //   {carpeta numérica}/principal_{nombre}
+      //   {carpeta numérica}/anexo_{nombre}  o  anexo1_{nombre} ... anexo10_{nombre}
+      //   {carpeta numérica}/subsanacion{número}_{nombre}   (respuesta a una observación)
+      // (el cargo de recepción lo guarda únicamente el servidor).
       allow create: if request.auth != null
         && request.auth.uid == uid
         && request.auth.token.email_verified == true
+        && request.resource.name.matches(
+             'ficha-solicitudes/[^/]+/[0-9]{10,16}/(principal|anexo[0-9]{0,2}|subsanacion[0-9]{1,20})_[^/]+'
+           )
         && request.resource.size <= 10 * 1024 * 1024
         && request.resource.contentType.matches(
              'application/(pdf|msword|vnd\\.ms-excel|vnd\\.openxmlformats-officedocument\\..*|octet-stream)'
            );
 
       allow update, delete: if false;
+    }
+
+    // Documentos de respuesta del funcionario (PDF). Los sube a su propia carpeta de paso y la función
+    // del servidor los revisa antes de entregarlos al ciudadano. Se leen solo con el enlace con token.
+    match /respuestas/{uid}/{solicitudId}/{archivo} {
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.name.matches(
+             'respuestas/[^/]+/[A-Za-z0-9_-]{10,80}/respuesta[0-9]{1,20}_[^/]+'
+           )
+        && request.resource.size <= 10 * 1024 * 1024
+        && request.resource.contentType == 'application/pdf';
+
+      allow read, update, delete: if false;
     }
 
     // Todo lo demás, cerrado.
