@@ -53,6 +53,9 @@ btnAccept?.addEventListener("click", async () => {
     sessionStorage.removeItem("userData");
     sessionStorage.removeItem("userDataUid");
     Object.keys(sessionStorage)
+      .filter((k) => k.startsWith("rolFuncionario:"))
+      .forEach((k) => sessionStorage.removeItem(k));
+    Object.keys(sessionStorage)
       .filter((k) => k.startsWith("tramites:"))
       .forEach((k) => sessionStorage.removeItem(k));
     await signOut(auth);

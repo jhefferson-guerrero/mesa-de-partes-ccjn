@@ -37,14 +37,14 @@ passwordInput.addEventListener("input", () => {
     const val = passwordInput.value;
 
     if (val === "") {
-        passwordInput.style.borderColor = "#ccc";
-        passwordInput.style.backgroundColor = "white";
+        passwordInput.style.borderColor = "#d1d5db";
+        passwordInput.style.backgroundColor = "#ffffff";
     } else if (passwordRegex.test(val)) {
-        passwordInput.style.borderColor = "green";
-        passwordInput.style.backgroundColor = "#e6f4ea";
+        passwordInput.style.borderColor = "#16a34a";
+        passwordInput.style.backgroundColor = "#f0fdf4";
     } else {
-        passwordInput.style.borderColor = "red";
-        passwordInput.style.backgroundColor = "#f8d7da";
+        passwordInput.style.borderColor = "#dc2626";
+        passwordInput.style.backgroundColor = "#fef2f2";
     }
 
     const requirements = [
@@ -57,7 +57,7 @@ passwordInput.addEventListener("input", () => {
 
     passwordReqDiv.innerHTML = requirements.map(req => {
         const cumple = req.regex.test(val);
-        const color = val === "" ? "#555" : (cumple ? "green" : "red");
+        const color = val === "" ? "#6b7280" : (cumple ? "#16a34a" : "#dc2626");
         return `<span style="color:${color}">&#9679;</span> ${req.text}`;
     }).join(" &nbsp; ");
 });

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js">
@@ -12,194 +12,168 @@
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js">
     <link rel="modulepreload" href="./js/firebase-db.js">
     <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js">
-<title>Registro</title>
-<link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <title>Completa tu registro · Mesa de Partes</title>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
     <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
-    <meta name="theme-color" content="#1983a3">
-<link rel="stylesheet" href="./css/styles.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<style>
-
-.error-message {
-    background-color: #f8d7da;
-    color: #842029;
-    border: 1px solid #f5c2c7;
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-}
-
-#successModal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-}
-
-#successModal .modal-content {
-    background-color: #d1e7dd;
-    color: #0f5132;
-    border: 1px solid #badbcc;
-    padding: 20px 30px;
-    border-radius: 8px;
-    text-align: center;
-    max-width: 400px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#successModal .modal-title {
-    font-size: 20px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-#successModal hr {
-    width: 100%;
-    border: 0;
-    border-top: 1px solid #0f5132;
-    margin: 10px 0;
-}
-
-#successModal p {
-    font-size: 16px;
-    margin: 10px 0;
-}
-
-#successModal button {
-    margin-top: 15px;
-    padding: 8px 20px;
-    background-color: #0f5132;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-}
-</style>
+    <meta name="theme-color" content="#002b4e">
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/auth.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-<div class="login-container register">
-    <h1>COMPLETA TU REGISTRO</h1>
+<body class="auth-page">
+    <main class="auth-shell auth-wide">
 
-    <form id="registerCompleteForm" class="grid-form">
-       
-        <!-- Datos personales -->
-        <div class="grid-3 align-bottom">
-            <div class="input-group dni-group">
-                <label for="dni">DNI</label>
-                <input type="text" id="dni" required />
-                <i class="fa-solid fa-circle-xmark dni-error-icon"></i>
-                <i class="fa-solid fa-circle-check dni-success-icon"></i>
+        <!-- Panel de marca -->
+        <aside class="auth-brand">
+            <div class="auth-brand-inner">
+                <img class="auth-logo" src="./img/favicon.svg" alt="" width="74" height="74">
+                <h1 class="auth-brand-title">Mesa de Partes Virtual</h1>
+                <p class="auth-brand-text">Último paso: completa tus datos y crea tu contraseña para empezar a registrar tus solicitudes.</p>
             </div>
-            <div class="input-group">
-                <label for="fechaNacimiento">Fecha de nacimiento</label>
-                <input type="date" id="fechaNacimiento" required />
+        </aside>
+
+        <!-- Formulario -->
+        <section class="auth-panel">
+            <div class="auth-card auth-card-wide">
+                <h2 class="auth-title">Completa tu registro</h2>
+                <p class="auth-sub">Ingresa tu DNI para obtener tus nombres y termina de crear tu cuenta.</p>
+
+                <form id="registerCompleteForm" class="auth-form">
+
+                    <!-- Datos personales -->
+                    <div class="auth-grid auth-grid-3">
+                        <div class="auth-field">
+                            <label for="dni">DNI</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                                <input type="text" id="dni" inputmode="numeric" autocomplete="off" required />
+                                <i class="fa-solid fa-circle-xmark dni-error-icon"></i>
+                                <i class="fa-solid fa-circle-check dni-success-icon"></i>
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="fechaNacimiento">Fecha de nacimiento</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-cake-candles" aria-hidden="true"></i>
+                                <input type="date" id="fechaNacimiento" required />
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="celular">Celular</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                                <input type="tel" id="celular" inputmode="numeric" autocomplete="tel" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-grid auth-grid-3">
+                        <div class="auth-field">
+                            <label for="apellidoPaterno">Apellido paterno</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                <input type="text" id="apellidoPaterno" required readonly />
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="apellidoMaterno">Apellido materno</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                <input type="text" id="apellidoMaterno" required readonly />
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="nombres">Nombres</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                <input type="text" id="nombres" required readonly />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-grid auth-grid-3">
+                        <div class="auth-field">
+                            <label for="departamento">Departamento</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                <select id="departamento" required>
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="provincia">Provincia</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                <select id="provincia" required>
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="distrito">Distrito</label>
+                            <div class="auth-input">
+                                <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                                <select id="distrito" required>
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="direccion">Dirección</label>
+                        <div class="auth-input">
+                            <i class="fa-solid fa-house" aria-hidden="true"></i>
+                            <input type="text" id="direccion" placeholder="Ej. Av. La Paz 123, dpto. 401" autocomplete="street-address" required />
+                        </div>
+                    </div>
+
+                    <div class="auth-grid auth-grid-2">
+                        <div class="auth-field">
+                            <label for="password">Contraseña definitiva</label>
+                            <div class="auth-input password-wrapper">
+                                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                <input type="password" id="password" placeholder="Crea tu contraseña" autocomplete="new-password" required />
+                            </div>
+                            <div id="passwordRequirements" class="auth-hint"></div>
+                        </div>
+                        <div class="auth-field">
+                            <label for="confirmPassword">Confirmar contraseña</label>
+                            <div class="auth-input password-wrapper">
+                                <i class="fa-solid fa-lock" aria-hidden="true"></i>
+                                <input type="password" id="confirmPassword" placeholder="Repite tu contraseña" autocomplete="new-password" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="error-message" role="alert"></div>
+
+                    <button type="submit" class="btn-ingresar">
+                        <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar y finalizar
+                    </button>
+                </form>
             </div>
-            <div class="input-group">
-                <label for="celular">Celular</label>
-                <input type="tel" id="celular" required />
-            </div>
+        </section>
+
+    </main>
+
+    <!-- Ventana de cuenta creada (la usa register-complete.js) -->
+    <div id="successModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-title"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Cuenta creada</div>
+            <p>¡Registro completado correctamente! Ahora puedes iniciar sesión.</p>
+            <button id="modalOkButton"><i class="fa-solid fa-check" aria-hidden="true"></i> Aceptar</button>
         </div>
-
-        <div class="grid-3">
-            <div class="input-group">
-                <label for="apellidoPaterno">Apellido Paterno</label>
-                <input type="text" id="apellidoPaterno" required readonly />
-            </div>
-            <div class="input-group">
-                <label for="apellidoMaterno">Apellido Materno</label>
-                <input type="text" id="apellidoMaterno" required readonly />
-            </div>
-            <div class="input-group">
-                <label for="nombres">Nombres</label>
-                <input type="text" id="nombres" required readonly />
-            </div>
-        </div>            
-
-
-        <div class="grid-3">
-            <div class="input-group">
-                <label for="departamento">Departamento</label>
-                <select id="departamento" required>
-                    <option value="">Seleccione...</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="provincia">Provincia</label>
-                <select id="provincia" required>
-                    <option value="">Seleccione...</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label for="distrito">Distrito</label>
-                <select id="distrito" required>
-                    <option value="">Seleccione...</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="grid-3 align-bottom">
-            <div class="input-group">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" placeholder="Ej. Av. La Paz 123, dpto. 401" required />
-            </div>
-        </div>
-
-        <div class="grid-2">
-            <div class="input-group">
-                <label for="password">Contraseña definitiva</label>
-                <input type="password" id="password" 
-                       placeholder="Min 8 caracteres, mayúscula, minúscula, número, especial" required />
-                <div id="passwordRequirements" style="font-size:12px; color:#555; margin-top:3px;">
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="confirmPassword">Confirmar contraseña</label>
-                <input type="password" id="confirmPassword" required />
-            </div>
-        </div>        
-
-        <div id="errorMessage" class="error-message"></div>
-
-        <button type="submit" class="btn-guardar">
-            <i class="fa-solid fa-floppy-disk"></i>
-            Guardar y finalizar
-        </button>
-    </form>
-</div>
-
-<div id="successModal">
-    <div class="modal-content">
-        <div class="modal-title">
-            <i class="fa-solid fa-circle-exclamation"></i> Cuenta creada
-        </div>
-        <hr>
-        <p>¡Registro completado correctamente! Ahora puedes iniciar sesión.</p>
-        <button id="modalOkButton"><i class="fa-solid fa-check"></i> Aceptar</button>
     </div>
-</div>
-<script src="./js/ubigeo.js"></script>
-<script type="module" src="./js/validarDNI.js"></script>
-<script type="module" src="./js/register-complete.js"></script>
+
+    <script src="./js/ubigeo.js"></script>
+    <script type="module" src="./js/validarDNI.js"></script>
+    <script type="module" src="./js/register-complete.js"></script>
     <script type="module" src="./js/ui-password.js"></script>
 </body>
 </html>

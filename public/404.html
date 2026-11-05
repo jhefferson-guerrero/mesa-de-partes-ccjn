@@ -7,24 +7,27 @@
     <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/img/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <meta name="theme-color" content="#1983a3">
+    <meta name="theme-color" content="#002b4e">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
 
     <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px 16px; border-radius: 3px; }
-      #message h2 { color: #1983a3; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #1983a3; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; margin-bottom: 16px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #1983a3; }
-      }
+      body { display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 24px; box-sizing: border-box; background: linear-gradient(155deg, #3e5a78 0%, #002b4e 46%, #001a31 100%); color: #111827; font-family: "Krub", Helvetica, Arial, sans-serif; }
+      #message { width: 100%; max-width: 400px; padding: 36px 32px 32px; border-radius: 12px; background: #ffffff; text-align: center; box-shadow: 0 18px 48px rgba(0,0,0,0.3); }
+      #message img { width: 64px; height: 64px; border-radius: 16px; box-shadow: 0 8px 20px rgba(0, 43, 78,0.35); }
+      #message h2 { margin: 18px 0 4px; font-size: 44px; line-height: 1; font-weight: 700; color: #002b4e; }
+      #message h1 { margin: 0 0 12px; font-size: 22px; font-weight: 700; color: #111827; }
+      #message p { margin: 0 0 26px; font-size: 15px; line-height: 1.6; color: #6b7280; }
+      #message a { display: block; padding: 14px; border-radius: 8px; background: linear-gradient(180deg, #0a3a63, #002b4e); color: #ffffff; font-size: 16px; font-weight: 700; text-decoration: none; box-shadow: 0 8px 18px rgba(0, 43, 78,0.28); transition: transform 0.15s, box-shadow 0.15s, background 0.2s; }
+      #message a:hover { background: linear-gradient(180deg, #002b4e, #001d36); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0, 43, 78,0.34); }
+      #message a:focus-visible { outline: 3px solid rgba(0, 43, 78,0.4); outline-offset: 3px; }
+      @media (prefers-reduced-motion: reduce) { #message a { transition: none; } #message a:hover { transform: none; } }
     </style>
   </head>
   <body>
     <div id="message">
+      <img src="/img/favicon.svg" alt="" width="64" height="64">
       <h2>404</h2>
       <h1>Página no encontrada</h1>
       <p>La página que buscas no existe o fue movida. Revisa la dirección e inténtalo de nuevo.</p>

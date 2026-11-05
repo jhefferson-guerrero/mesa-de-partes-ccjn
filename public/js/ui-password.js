@@ -12,9 +12,9 @@ const OJO_TACHADO =
 const ESTILOS = `
 .pw-campo{position:relative;display:block;width:100%}
 .pw-campo>input{width:100%;padding-right:44px}
-.pw-ojo{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:34px;height:34px;margin:0;padding:0;border:0;border-radius:6px;background:transparent;color:#666;cursor:pointer;line-height:0}
-.pw-ojo:hover{color:#1983a3;background:rgba(25,131,163,.1)}
-.pw-ojo:focus-visible{outline:2px solid #1983a3;outline-offset:1px}
+.pw-ojo{position:absolute;top:50%;right:6px;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:34px;height:34px;margin:0;padding:0;border:0;border-radius:8px;background:transparent;color:#6b7280;cursor:pointer;line-height:0}
+.pw-ojo:hover{color:#002b4e;background:rgba(0, 43, 78,.1)}
+.pw-ojo:focus-visible{outline:2px solid #002b4e;outline-offset:1px}
 .pw-ojo svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 `;
 
