@@ -1865,6 +1865,11 @@ a.archivo-nombre:hover {
     color: var(--blanco);
 }
 
+/* BANDEJA está en el menú de todas las pantallas y solo se muestra a los funcionarios (clase en <html>) */
+html:not(.es-funcionario) .menu-item[data-bandeja] {
+    display: none;
+}
+
 /* Marca en la lista: el ciudadano escribió y espera respuesta */
 .aviso-mensaje {
     display: inline-flex;

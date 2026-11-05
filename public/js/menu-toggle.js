@@ -13,6 +13,16 @@
     /* sin almacenamiento: el menú arranca expandido */
   }
 
+  // Si ya se sabe que la persona es funcionario (rol.js lo recuerda en la pestaña), se marca la página antes de
+  // pintarla: el botón BANDEJA ya está en el HTML y el CSS solo lo muestra, así no parpadea al cambiar de pantalla.
+  // Esto solo decide qué mostrar: la seguridad está en las funciones del servidor.
+  try {
+    var uid = sessionStorage.getItem("userDataUid");
+    if (uid && sessionStorage.getItem("rolFuncionario:" + uid) === "1") raiz.classList.add("es-funcionario");
+  } catch (e) {
+    /* sin almacenamiento: rol.js lo marca cuando responda el servidor */
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     var boton = document.getElementById("menuToggle");
     if (!boton) return;
