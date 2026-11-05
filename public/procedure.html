@@ -15,7 +15,7 @@
     <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
     <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
-    <meta name="theme-color" content="#1983a3">
+    <meta name="theme-color" content="#002b4e">
     <link rel="preload" href="css/normalize.css" as="style">
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,28 +23,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
     <link rel="preload" href="css/main.css" as="style">
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/menu-toggle.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-left">
-                <span class="text-title">CJN</span>
-            </div>
-            <div class="header-center">
-                <span class="mesa-partes-text">MESA DE PARTES VIRTUAL</span>
-            </div>
-            <div class="header-right">
-                <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
-                    <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
-                    <span class="logout-text">Cerrar sesión</span>
-                </button>
-            </div>
-        </header>
-
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <img class="sidebar-logo" src="./img/favicon.svg" alt="" width="34" height="34">
+                <div class="sidebar-brand">
+                    <strong>Mesa de Partes</strong>
+                    <small>Virtual · CJN</small>
+                </div>
+            </div>
             <div class="menu-item active" onclick="window.location.href='procedure.html'">
                 <span class="icon"><i class="fa-solid fa-house"></i></span>
                 <span class="text"><strong>MIS TRÁMITES</strong></span>
@@ -58,14 +51,30 @@
                 <span class="text"><strong>MI PERFIL</strong></span>
             </div>  
             <div class="contact-info">
-                <p><strong>Central Telefónica: (01) 612-8230</strong></p>
-                <p class="whatsapp"><strong>WhatsApp: 966 429 596</strong></p>
+                <p><i class="fa-solid fa-phone" aria-hidden="true"></i><span class="contact-text"><strong>Central Telefónica: (01) 999-9999</strong></span></p>
+                <p class="whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span class="contact-text"><strong>WhatsApp: 999 999 999</strong></span></p>
             </div>
+            <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                <span class="logout-text">Cerrar sesión</span>
+            </button>
         </aside>
+        <script src="./js/menu-bandeja.js"></script>
+        <!-- Pestaña con flecha sobre el borde del menú: contrae o expande -->
+        <button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Contraer menú" title="Contraer menú">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
 
         <!-- Main Content -->
         <main class="main-content">
             <div class="procedures-container">
+                <!-- Aviso: trámites que esperan una subsanación -->
+                <div id="avisoObservados" class="aviso-observados" role="status" hidden>
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    <span id="avisoObservadosTexto"></span>
+                    <button type="button" id="verObservados" class="btn-texto">Ver</button>
+                </div>
+
                 <!-- Filter Section -->
                 <div class="filter-section">
                     <div class="filters-grid">
@@ -75,6 +84,17 @@
                                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
                                 <input id="searchInput" type="search" class="filter-input" placeholder="Número de expediente o asunto" autocomplete="off">
                             </div>
+                        </div>
+                        <div class="filter-field f-estado">
+                            <label for="estadoFilter">Estado</label>
+                            <select id="estadoFilter" class="filter-select">
+                                <option value="">Todos</option>
+                                <option value="Recibido">Recibido</option>
+                                <option value="En revisión">En revisión</option>
+                                <option value="Observado">Observado</option>
+                                <option value="Atendido">Atendido</option>
+                                <option value="Rechazado">Rechazado</option>
+                            </select>
                         </div>
                         <div class="filter-field f-tipo">
                             <label for="tipoFilter">Tipo de documento</label>
@@ -140,9 +160,9 @@
                                 <th>Expediente</th>
                                 <th>Fecha de creación y envío</th>
                                 <th>Tipo de documento</th>
-                                <th>Tipo de sub documento</th>
                                 <th>Asunto</th>
-                                <th>Ver PDF</th>
+                                <th>Estado</th>
+                                <th>Documentos</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -174,8 +194,22 @@
         </div>
     </div> 
 
+    <!-- Detalle del trámite: datos, archivos, historial y subsanación -->
+    <div id="detalleModal" class="modal">
+        <div class="modal-content large detalle-card" role="dialog" aria-modal="true" aria-labelledby="detalleTitulo">
+            <div class="modal-header">
+                <span class="modal-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+                <h3 id="detalleTitulo">Expediente</h3>
+                <span id="detalleEstado" class="detalle-estado"></span>
+                <button type="button" class="close-btn" id="detalleCerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body detalle-body" id="detalleCuerpo"></div>
+        </div>
+    </div>
+
     <script type="module" src="./js/procedure.js"></script>
     <script type="module" src="./js/session-guard.js"></script>
+    <script type="module" src="./js/rol.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin>
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js">
+    <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js">
+    <link rel="modulepreload" href="./js/firebase-config.js">
+    <title>Bandeja de solicitudes</title>
+    <link rel="icon" type="image/svg+xml" href="./img/favicon.svg">
+    <link rel="icon" type="image/x-icon" href="./img/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="./img/apple-touch-icon.png">
+    <meta name="theme-color" content="#002b4e">
+    <link rel="preload" href="css/normalize.css" as="style">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Krub:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="css/main.css" as="style">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="js/menu-toggle.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-top">
+                <img class="sidebar-logo" src="./img/favicon.svg" alt="" width="34" height="34">
+                <div class="sidebar-brand">
+                    <strong>Mesa de Partes</strong>
+                    <small>Virtual · CJN</small>
+                </div>
+            </div>
+            <div class="menu-item" onclick="window.location.href='procedure.html'">
+                <span class="icon"><i class="fa-solid fa-house"></i></span>
+                <span class="text"><strong>MIS TRÁMITES</strong></span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='home.html'">
+                <span class="icon"><i class="fa-solid fa-envelope"></i></span>
+                <span class="text"><strong>INGRESAR SOLICITUD</strong></span>
+            </div>
+            <div class="menu-item" onclick="window.location.href='profile.html'">
+                <span class="icon"><i class="fa-solid fa-user-gear"></i></span>
+                <span class="text"><strong>MI PERFIL</strong></span>
+            </div>
+            <div class="menu-item active" data-bandeja onclick="window.location.href='bandeja.html'">
+                <span class="icon"><i class="fa-solid fa-inbox"></i></span>
+                <span class="text"><strong>BANDEJA</strong></span>
+            </div>
+            <div class="contact-info">
+                <p><i class="fa-solid fa-phone" aria-hidden="true"></i><span class="contact-text"><strong>Central Telefónica: (01) 999-9999</strong></span></p>
+                <p class="whatsapp"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span class="contact-text"><strong>WhatsApp: 999 999 999</strong></span></p>
+            </div>
+            <button type="button" id="logout" class="logout" title="Cerrar sesión" aria-label="Cerrar sesión">
+                <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                <span class="logout-text">Cerrar sesión</span>
+            </button>
+        </aside>
+        <!-- Pestaña con flecha sobre el borde del menú: contrae o expande -->
+        <button type="button" id="menuToggle" class="menu-toggle" aria-controls="sidebar" aria-expanded="true" aria-label="Contraer menú" title="Contraer menú">
+            <i class="fa-solid fa-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="procedures-container bandeja">
+                <div class="bandeja-cabecera">
+                    <div>
+                        <h2 class="bandeja-titulo">Bandeja de solicitudes</h2>
+                        <p class="bandeja-sub">Revisa, observa y atiende las solicitudes recibidas.</p>
+                    </div>
+                    <button type="button" id="bandejaRecargar" class="btn-cancel">
+                        <i class="fa-solid fa-rotate" aria-hidden="true"></i> Actualizar
+                    </button>
+                </div>
+
+                <!-- Conteo por estado (cada uno filtra la lista) -->
+                <div class="bandeja-chips" id="bandejaChips" role="group" aria-label="Filtrar por estado"></div>
+
+                <div class="filter-section">
+                    <div class="filters-grid">
+                        <div class="filter-field f-buscar-b">
+                            <label for="bandejaBuscar">Buscar</label>
+                            <div class="input-icon">
+                                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                                <input id="bandejaBuscar" type="search" class="filter-input" placeholder="Expediente, nombre, DNI, correo o asunto" autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="filter-field f-pagina-b">
+                            <label for="bandejaPorPagina">Por página</label>
+                            <select id="bandejaPorPagina" class="page-select">
+                                <option value="15">15</option>
+                                <option value="30">30</option>
+                                <option value="50">50</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-footer">
+                        <span id="bandejaResumen" class="filter-summary" role="status" aria-live="polite"></span>
+                        <button type="button" id="bandejaLimpiar" class="btn-limpiar" disabled>
+                            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Limpiar filtros
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pagination-info">
+                    <span id="bandejaPagInfo"></span>
+                    <div class="pagination-controls">
+                        <button type="button" class="pagination-btn" disabled>‹‹</button>
+                        <button type="button" class="pagination-btn" disabled>‹</button>
+                        <button type="button" class="pagination-btn active">1</button>
+                        <button type="button" class="pagination-btn" disabled>›</button>
+                        <button type="button" class="pagination-btn" disabled>››</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="procedures-table bandeja-tabla">
+                        <thead>
+                            <tr>
+                                <th>Expediente</th>
+                                <th>Fecha de envío</th>
+                                <th>Remitente</th>
+                                <th>Tipo de documento</th>
+                                <th>Asunto</th>
+                                <th>Estado</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bandejaCuerpo">
+                            <tr class="fila-estado"><td colspan="7">Cargando solicitudes…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detalle de la solicitud y acciones del funcionario -->
+    <div id="detalleModal" class="modal">
+        <div class="modal-content large detalle-card detalle-ancho" role="dialog" aria-modal="true" aria-labelledby="detalleTitulo">
+            <div class="modal-header">
+                <span class="modal-icon"><i class="fa-solid fa-folder-open" aria-hidden="true"></i></span>
+                <h3 id="detalleTitulo">Expediente</h3>
+                <span id="detalleEstado" class="detalle-estado"></span>
+                <button type="button" class="close-btn" id="detalleCerrar" aria-label="Cerrar">&times;</button>
+            </div>
+            <div class="modal-body detalle-body" id="detalleCuerpo"></div>
+        </div>
+    </div>
+
+    <!-- Modal Cerrar Sesión -->
+    <div id="logoutModal" class="modal">
+        <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-icon"><i class="fa-solid fa-circle-info"></i></span>
+            <h3>Cerrar sesión</h3>
+        </div>
+        <div class="modal-body">
+            <p>Se cerrará tu sesión actual.</p>
+            <p>¿Deseas continuar?</p>
+        </div>
+        <div class="modal-actions">
+            <button id="logoutAccept" class="btn-accept">✓ Aceptar</button>
+            <button id="logoutCancel" class="btn-cancel">✗ Cancelar</button>
+        </div>
+        </div>
+    </div>
+
+    <script type="module" src="./js/bandeja.js"></script>
+    <script type="module" src="./js/session-guard.js"></script>
+</body>
+</html>

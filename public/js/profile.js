@@ -180,7 +180,7 @@ window.toggleProfileEdit = function () {
         distritoInput.style.display = "none";
 
         editButton.innerHTML = "✗ Cancelar";
-        editButton.style.backgroundColor = "#dc3545";
+        editButton.style.backgroundColor = "#dc2626";
         updateButton.style.display = "inline-flex";
     } else {
         editableFields.forEach((field) => {
@@ -196,7 +196,7 @@ window.toggleProfileEdit = function () {
         distritoSelect.style.display = "none";
 
         editButton.innerHTML = '<i class="fa-solid fa-pencil"></i> Editar';
-        editButton.style.backgroundColor = "#1983a3";
+        editButton.style.backgroundColor = "#002b4e";
         updateButton.style.display = "none";
         cargarDatosUsuario();
     }

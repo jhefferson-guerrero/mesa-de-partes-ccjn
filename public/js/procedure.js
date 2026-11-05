@@ -5,10 +5,18 @@ import { db } from "./firebase-db.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-auth.js";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   query,
   where,
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore-lite.js";
+import { mostrarMensaje } from "./ui-modal.js";
+import {
+  el, seccion, datos, listaArchivos, historial, insigniaEstado, chipsArchivos,
+  archivosDe, carpetaDe, expedienteDe, estadoDe, fechaCorta, problemaConArchivo, MAX_ARCHIVOS,
+  respuestaSeccion, seccionMensajes,
+} from "./detalle-ui.js";
 
 
 function parseExpedienteFromPath(path = "") {
@@ -43,21 +51,27 @@ function normalizar(texto) {
     .trim();
 }
 
-function createViewButton(onClick) {
+function createActionButton(iconClass, title, color, onClick) {
   const btn = document.createElement("button");
+  btn.type = "button";
   btn.className = "action-btn";
-  btn.title = "Ver";
-  btn.style.backgroundColor = "#1983a3";
+  btn.title = title;
+  btn.setAttribute("aria-label", title);
+  btn.style.backgroundColor = color;
   btn.style.border = "none";
 
   const i = document.createElement("i");
-  i.className = "fa-solid fa-eye";
+  i.className = `fa-solid ${iconClass}`;
   i.style.color = "#ffffff";
+  i.setAttribute("aria-hidden", "true");
 
   btn.appendChild(i);
   btn.addEventListener("click", onClick);
   return btn;
 }
+
+const createViewButton = (onClick) => createActionButton("fa-eye", "Ver documento principal", "#002b4e", onClick);
+const createCargoButton = (onClick) => createActionButton("fa-file-arrow-down", "Descargar cargo de recepción", "#3e5a78", onClick);
 
 /* =============== Estado =============== */
 let allRows = [];
@@ -68,7 +82,7 @@ let hasLoaded = false;
 let datosListos = false; // hay una lista (de la caché o de Firestore) para mostrar
 let errorCarga = false;
 
-const filtros = { texto: "", tipo: "", subTipo: "", desde: "", hasta: "" };
+const filtros = { texto: "", estado: "", tipo: "", subTipo: "", desde: "", hasta: "" };
 const hayFiltros = () => Object.values(filtros).some((v) => v !== "");
 
 const expedienteToUrl = new Map();
@@ -93,6 +107,7 @@ function getFilteredData() {
   return allRows.filter((r) => {
     if (filtros.tipo && r.tipo !== filtros.tipo) return false;
     if (filtros.subTipo && r.subTipo !== filtros.subTipo) return false;
+    if (filtros.estado && r.estado !== filtros.estado) return false;
     const ms = msDe(r);
     if (desdeMs !== null && ms < desdeMs) return false;
     if (hastaMs !== null && ms > hastaMs) return false;
@@ -227,6 +242,60 @@ function celda(claseDiv, claseSpan, texto, titulo) {
   return td;
 }
 
+// El número de expediente abre el detalle del trámite
+function celdaExpediente(row) {
+  const td = document.createElement("td");
+  const div = document.createElement("div");
+  div.className = "expediente-cell";
+  const boton = document.createElement("button");
+  boton.type = "button";
+  boton.className = "link-expediente expediente-number";
+  boton.textContent = row.expediente || "—";
+  boton.title = "Ver el detalle de este trámite";
+  boton.addEventListener("click", () => abrirDetalle(row.id));
+  div.appendChild(boton);
+  td.appendChild(div);
+  return td;
+}
+
+// Tipo de documento con el subtipo debajo (una sola columna)
+function celdaTipo(row) {
+  const td = document.createElement("td");
+  const div = document.createElement("div");
+  div.className = "tipo-cell";
+  const tipo = document.createElement("span");
+  tipo.className = "tipo-text";
+  tipo.textContent = (row.tipo || "").toUpperCase();
+  const sub = document.createElement("small");
+  sub.className = "sub-text";
+  sub.textContent = (row.subTipo || "").toUpperCase();
+  div.append(tipo, sub);
+  td.appendChild(div);
+  return td;
+}
+
+function celdaEstado(row) {
+  const td = document.createElement("td");
+  td.className = "status";
+  td.appendChild(insigniaEstado(row.estado));
+  return td;
+}
+
+// Aviso de trámites observados (esperan que la persona los subsane)
+function renderAviso() {
+  const caja = $id("avisoObservados");
+  if (!caja) return;
+  const n = allRows.filter((r) => r.estado === "Observado").length;
+  if (!datosListos || n === 0) {
+    caja.hidden = true;
+    return;
+  }
+  $id("avisoObservadosTexto").textContent = n === 1
+    ? "Tienes 1 trámite observado: necesita que lo subsanes."
+    : `Tienes ${n} trámites observados: necesitan que los subsanes.`;
+  caja.hidden = false;
+}
+
 function renderResumen(meta) {
   const resumen = $id("filterSummary");
   const limpiar = $id("clearFilters");
@@ -255,6 +324,7 @@ function renderRows() {
   renderPaginationInfo(meta);
   updatePaginationControls(meta);
   renderResumen(meta);
+  renderAviso();
 
   if (!datosListos) {
     mostrarEstado(errorCarga ? "No se pudieron cargar tus trámites. Recarga la página." : "Cargando trámites…");
@@ -275,13 +345,14 @@ function renderRows() {
   meta.data.forEach((row) => {
     const tr = document.createElement("tr");
 
-    tr.appendChild(celda("expediente-cell", "expediente-number", row.expediente || "—"));
+    if (row.estado === "Observado") tr.classList.add("fila-observada");
+    tr.appendChild(celdaExpediente(row));
     tr.appendChild(celda("date-cell", "date", row.fecha || "—"));
-    tr.appendChild(celda("tipo-cell", "tipo-text", (row.tipo || "").toUpperCase()));
-    tr.appendChild(celda("sub-cell", "sub-text", (row.subTipo || "").toUpperCase()));
+    tr.appendChild(celdaTipo(row));
     tr.appendChild(celda("asunto-cell", "asunto-text", row.asunto || "—", row.asunto || ""));
+    tr.appendChild(celdaEstado(row));
 
-    // Acciones (solo Ver)
+    // Acciones: ver el documento principal y descargar el cargo de recepción (si existe)
     const tdAcc = document.createElement("td");
     const divAcc = document.createElement("div");
     divAcc.className = "actions-cell";
@@ -290,8 +361,13 @@ function renderRows() {
     const btnVer = createViewButton(() => {
       if (url) window.open(url, "_blank", "noopener,noreferrer");
     });
-
     divAcc.appendChild(btnVer);
+
+    // Las solicitudes anteriores al cargo no lo tienen: en ese caso el botón no aparece
+    const urlCargo = row.urlCargo || null;
+    if (urlCargo) {
+      divAcc.appendChild(createCargoButton(() => window.open(urlCargo, "_blank", "noopener,noreferrer")));
+    }
     tdAcc.appendChild(divAcc);
     tr.appendChild(tdAcc);
 
@@ -321,6 +397,9 @@ function readCachedRows(uid) {
         subTipo: r.subTipo,
         asunto: r.asunto || "",
         urlPrincipal: r.urlPrincipal,
+        urlCargo: r.urlCargo || null,
+        id: r.id,
+        estado: r.estado || "Recibido",
       };
     });
   } catch {
@@ -337,6 +416,9 @@ function writeCachedRows(uid, rows) {
       subTipo: r.subTipo,
       asunto: r.asunto || "",
       urlPrincipal: r.urlPrincipal,
+      urlCargo: r.urlCargo || null,
+      id: r.id,
+      estado: r.estado || "Recibido",
     }));
     sessionStorage.setItem(CACHE_PREFIX + uid, JSON.stringify(plain));
   } catch {
@@ -385,11 +467,15 @@ async function loadProceduresForUser(uid) {
 
     const path = principal?.path || anexo?.path || "";
     const urlPrincipal = principal?.url || null;
-    const expediente = parseExpedienteFromPath(path);
+    // Número real asignado por el servidor; las solicitudes antiguas usan el número de su carpeta
+    const expediente = d?.expediente || parseExpedienteFromPath(path);
+    const urlCargo = d?.cargo?.url || null;
 
     if (expediente && urlPrincipal) expedienteToUrl.set(expediente, urlPrincipal);
 
     items.push({
+      id: docSnap.id,
+      estado: estadoDe(d),
       expediente,
       fechaRaw: d?.creadoEn || null,
       fecha: formatFecha(d?.creadoEn || null),
@@ -397,6 +483,7 @@ async function loadProceduresForUser(uid) {
       subTipo: d?.subDocumento || "",
       asunto: d?.asunto || "",
       urlPrincipal,
+      urlCargo,
     });
   });
 
@@ -441,6 +528,17 @@ function setupFiltros() {
     }, 200);
   });
 
+  // Estado
+  $id("estadoFilter")?.addEventListener("change", (e) => {
+    filtros.estado = e.target.value;
+    aplicarFiltros();
+  });
+  $id("verObservados")?.addEventListener("click", () => {
+    filtros.estado = "Observado";
+    if ($id("estadoFilter")) $id("estadoFilter").value = "Observado";
+    aplicarFiltros();
+  });
+
   // Tipo y subtipo
   $id("tipoFilter")?.addEventListener("change", (e) => {
     filtros.tipo = e.target.value;
@@ -471,7 +569,7 @@ function setupFiltros() {
     if (buscar) buscar.value = "";
     if (desde) { desde.value = ""; desde.max = ""; }
     if (hasta) { hasta.value = ""; hasta.min = ""; }
-    ["tipoFilter", "subTipoFilter"].forEach((id) => { if ($id(id)) $id(id).value = ""; });
+    ["tipoFilter", "subTipoFilter", "estadoFilter"].forEach((id) => { if ($id(id)) $id(id).value = ""; });
     aplicarFiltros();
     buscar?.focus();
   });
@@ -512,5 +610,273 @@ onAuthStateChanged(auth, async (user) => {
       errorCarga = true;
       renderRows();
     }
+  }
+});
+
+/* =============== Detalle del trámite =============== */
+let detalleId = null;
+
+function cerrarDetalle() {
+  const modal = $id("detalleModal");
+  if (modal) modal.style.display = "none";
+  detalleId = null;
+}
+
+function icono(clase) {
+  const i = el("i", `fa-solid ${clase}`);
+  i.setAttribute("aria-hidden", "true");
+  return i;
+}
+
+async function abrirDetalle(id) {
+  detalleId = id;
+  const cuerpo = $id("detalleCuerpo");
+  $id("detalleTitulo").textContent = "Expediente";
+  $id("detalleEstado").replaceChildren();
+  cuerpo.replaceChildren(el("p", "detalle-vacio", "Cargando…"));
+  $id("detalleModal").style.display = "flex";
+
+  try {
+    const snap = await getDoc(doc(db, "ficha-solicitud", id));
+    if (detalleId !== id) return; // la persona cerró o abrió otro mientras cargaba
+    if (!snap.exists()) throw new Error("no-existe");
+    dibujarDetalle(id, snap.data());
+  } catch (err) {
+    console.error("No se pudo cargar el detalle:", err);
+    if (detalleId === id) {
+      cuerpo.replaceChildren(el("p", "detalle-vacio", "No se pudo cargar el detalle. Cierra esta ventana e inténtalo de nuevo."));
+    }
+  }
+}
+
+function dibujarDetalle(id, fila, opciones = {}) {
+  const estado = estadoDe(fila);
+  $id("detalleTitulo").textContent = `Expediente ${expedienteDe(fila)}`;
+  $id("detalleEstado").replaceChildren(insigniaEstado(estado));
+
+  const partes = [];
+
+  if (estado === "Observado") {
+    const caja = el("div", "detalle-alerta");
+    const texto = el("div", "alerta-texto");
+    texto.append(
+      el("strong", "", "Tu solicitud tiene una observación"),
+      el("p", "", (fila.observacion && fila.observacion.mensaje) || "Revisa el seguimiento de abajo.")
+    );
+    const boton = el("button", "btn-submit btn-subsanar");
+    boton.type = "button";
+    boton.append(icono("fa-paperclip"), document.createTextNode(" Subsanar"));
+    boton.addEventListener("click", () => mostrarSubsanar(id, fila));
+    caja.append(icono("fa-triangle-exclamation"), texto, boton);
+    partes.push(caja);
+  }
+
+  // La respuesta final va arriba: es lo que la persona busca al entrar a un trámite cerrado.
+  const respuesta = respuestaSeccion(fila);
+  if (respuesta) partes.push(respuesta);
+
+  partes.push(seccion("Datos del trámite", datos([
+    ["Fecha de envío", fechaCorta(fila.creadoEn)],
+    ["Tipo de documento", String(fila.tipoDocumento || "").toUpperCase()],
+    ["Tipo de sub documento", String(fila.subDocumento || "").toUpperCase()],
+    ["Asunto", fila.asunto, true],
+  ])));
+  partes.push(seccion("Archivos", listaArchivos(archivosDe(fila))));
+
+  const mensajes = seccionMensajes(fila, "Ciudadano", {
+    puedeEscribir: estado !== "Atendido" && estado !== "Rechazado",
+    placeholder: "Escribe tu mensaje a la Mesa de Partes…",
+    alEnviar: (texto) => enviarMensaje(id, texto),
+  });
+  if (mensajes) partes.push(mensajes);
+  partes.push(seccion("Seguimiento", historial(fila.historial)));
+
+  const cuerpo = $id("detalleCuerpo");
+  const posicion = cuerpo.scrollTop;
+  cuerpo.replaceChildren(...partes);
+  cuerpo.scrollTop = opciones.irAMensajes ? cuerpo.scrollHeight : opciones.conservarPosicion ? posicion : 0;
+  if (opciones.irAMensajes) $id("seccionMensajes")?.scrollIntoView({ block: "nearest" });
+}
+
+// Envía un mensaje a la Mesa de Partes y vuelve a dibujar el trámite con el mensaje ya en la conversación.
+async function enviarMensaje(id, texto) {
+  try {
+    const [{ app }, functionsMod] = await Promise.all([
+      import("./firebase-config.js"),
+      import("https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js"),
+    ]);
+    const llamar = functionsMod.httpsCallable(functionsMod.getFunctions(app, "us-central1"), "enviarMensaje");
+    await llamar({ solicitudId: id, texto });
+  } catch (err) {
+    console.error(err);
+    const codigo = String(err?.code || "");
+    let mensaje = "No se pudo enviar el mensaje. Inténtalo nuevamente.";
+    if (codigo === "functions/resource-exhausted") mensaje = "Enviaste demasiados mensajes seguidos. Inténtalo de nuevo más tarde.";
+    else if (codigo === "functions/invalid-argument" || codigo === "functions/failed-precondition") mensaje = err.message || mensaje;
+    mostrarMensaje(mensaje, { tipo: codigo.startsWith("functions/") ? "aviso" : "error", titulo: "No se pudo enviar" });
+    return false;
+  }
+  // El mensaje ya se envió: si falla la relectura no se avisa de error, solo no se actualiza la vista.
+  try {
+    const snap = await getDoc(doc(db, "ficha-solicitud", id));
+    if (detalleId === id && snap.exists()) dibujarDetalle(id, snap.data(), { irAMensajes: true });
+  } catch (err) {
+    console.error("No se pudo actualizar la conversación:", err);
+  }
+  return true;
+}
+
+/* ---- Subsanar una observación ---- */
+function mostrarSubsanar(id, fila) {
+  const cuerpo = $id("detalleCuerpo");
+  const existente = $id("formSubsanar");
+  if (existente) {
+    existente.scrollIntoView({ behavior: "smooth", block: "center" });
+    existente.querySelector("textarea")?.focus();
+    return;
+  }
+
+  const archivos = [];
+  const form = el("section", "detalle-seccion form-subsanar");
+  form.id = "formSubsanar";
+  form.appendChild(el("h4", "detalle-titulo", "Subsanar observación"));
+  form.appendChild(el("p", "detalle-ayuda", "Adjunta lo que falta (hasta 10 archivos de 10 MB: PDF, Word o Excel). Al enviarlo, el trámite vuelve a revisión."));
+
+  const comentario = el("textarea", "form-control subsanar-comentario");
+  comentario.id = "subsanarComentario";
+  comentario.maxLength = 500;
+  comentario.rows = 3;
+  comentario.placeholder = "Comentario para quien revisa (opcional)";
+  comentario.setAttribute("aria-label", "Comentario");
+
+  const input = el("input");
+  input.type = "file";
+  input.id = "subsanarArchivos";
+  input.multiple = true;
+  input.accept = ".pdf,.doc,.docx,.xls,.xlsx";
+  input.hidden = true;
+
+  const elegir = el("button", "btn-elegir");
+  elegir.type = "button";
+  elegir.append(icono("fa-folder-open"), document.createTextNode(" Elegir archivos"));
+  elegir.addEventListener("click", () => input.click());
+
+  const lista = el("div", "lista-chips");
+  const acciones = el("div", "form-subsanar-acciones");
+  const enviar = el("button", "btn-submit");
+  enviar.type = "button";
+  enviar.id = "subsanarEnviar";
+  enviar.append(icono("fa-paper-plane"), document.createTextNode(" Enviar subsanación"));
+  const cancelar = el("button", "btn-cancel");
+  cancelar.type = "button";
+  cancelar.textContent = "Cancelar";
+  acciones.append(enviar, cancelar);
+
+  function pintar() {
+    lista.replaceChildren(chipsArchivos(archivos, (i) => { archivos.splice(i, 1); pintar(); }));
+    lista.hidden = archivos.length === 0;
+  }
+  pintar();
+
+  input.addEventListener("change", () => {
+    const problemas = [];
+    for (const f of Array.from(input.files)) {
+      const motivo = problemaConArchivo(f);
+      if (motivo) { problemas.push(motivo); continue; }
+      if (archivos.some((x) => x.name === f.name && x.size === f.size && x.lastModified === f.lastModified)) {
+        problemas.push(`"${f.name}" ya está en la lista.`);
+        continue;
+      }
+      if (archivos.length >= MAX_ARCHIVOS) { problemas.push(`Solo puedes adjuntar hasta ${MAX_ARCHIVOS} archivos.`); break; }
+      archivos.push(f);
+    }
+    input.value = "";
+    pintar();
+    if (problemas.length) mostrarMensaje(problemas.map((p) => `- ${p}`).join("\n"), { tipo: "aviso", titulo: "Algunos archivos no se agregaron" });
+  });
+
+  cancelar.addEventListener("click", () => form.remove());
+  enviar.addEventListener("click", () => enviarSubsanacion(id, fila, comentario.value, archivos, enviar));
+
+  form.append(comentario, elegir, input, lista, acciones);
+  const alerta = cuerpo.querySelector(".detalle-alerta");
+  if (alerta) alerta.after(form);
+  else cuerpo.prepend(form);
+  form.scrollIntoView({ behavior: "smooth", block: "center" });
+  comentario.focus();
+}
+
+async function enviarSubsanacion(id, fila, comentario, archivos, boton) {
+  if (archivos.length === 0) {
+    mostrarMensaje("Adjunta al menos un archivo para subsanar.", { tipo: "aviso", titulo: "Faltan archivos" });
+    return;
+  }
+  const user = auth.currentUser;
+  const carpeta = carpetaDe(fila);
+  if (!user || !carpeta) {
+    mostrarMensaje("No se pudo identificar la solicitud. Recarga la página e inténtalo de nuevo.", { tipo: "error", titulo: "No se pudo enviar" });
+    return;
+  }
+
+  const textoOriginal = boton.textContent;
+  boton.disabled = true;
+  boton.textContent = "Enviando…";
+  try {
+    // Estos módulos solo se descargan cuando se subsana (Mis Trámites no los necesita para listar)
+    const [{ app }, storageMod, functionsMod] = await Promise.all([
+      import("./firebase-config.js"),
+      import("https://www.gstatic.com/firebasejs/12.1.0/firebase-storage.js"),
+      import("https://www.gstatic.com/firebasejs/12.1.0/firebase-functions.js"),
+    ]);
+    const storage = storageMod.getStorage(app);
+    const marca = Date.now();
+    const subidos = await Promise.all(
+      archivos.map((f, i) =>
+        storageMod.uploadBytes(
+          storageMod.ref(storage, `ficha-solicitudes/${user.uid}/${carpeta}/subsanacion${marca}${i}_${f.name}`),
+          f,
+          { contentType: f.type || "application/octet-stream" }
+        )
+      )
+    );
+    const llamar = functionsMod.httpsCallable(functionsMod.getFunctions(undefined, "us-central1"), "subsanarSolicitud");
+    await llamar({
+      solicitudId: id,
+      comentario: comentario.trim(),
+      archivos: subidos.map((s) => ({ path: s.metadata.fullPath })),
+    });
+
+    cerrarDetalle();
+    mostrarMensaje("Enviamos tu subsanación. El trámite volvió a revisión y te avisaremos por correo cuando haya novedades.", { tipo: "exito", titulo: "Subsanación enviada" });
+    try { sessionStorage.removeItem(CACHE_PREFIX + user.uid); } catch { /* sin caché */ }
+    loadProceduresForUser(user.uid).catch((e) => console.error(e));
+  } catch (err) {
+    console.error(err);
+    const codigo = String(err?.code || "");
+    let mensaje = "No se pudo enviar la subsanación. Inténtalo nuevamente.";
+    let titulo = "No se pudo enviar";
+    if (codigo === "functions/resource-exhausted") {
+      mensaje = "Hiciste demasiados envíos seguidos. Inténtalo de nuevo más tarde.";
+      titulo = "Límite de envíos";
+    } else if (codigo === "functions/invalid-argument" || codigo === "functions/failed-precondition") {
+      mensaje = err.message || mensaje;
+      titulo = "Revisa los datos";
+    } else if (codigo === "storage/unauthorized") {
+      mensaje = "No se pudo subir uno de los archivos. Verifica el formato y el tamaño.";
+    }
+    mostrarMensaje(mensaje, { tipo: codigo.startsWith("functions/") ? "aviso" : "error", titulo });
+    boton.disabled = false;
+    boton.textContent = textoOriginal;
+  }
+}
+
+// Cierre de la ventana: botón ×, clic fuera o Esc
+$id("detalleCerrar")?.addEventListener("click", cerrarDetalle);
+$id("detalleModal")?.addEventListener("mousedown", (e) => {
+  if (e.target === $id("detalleModal")) cerrarDetalle();
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && $id("detalleModal")?.style.display === "flex" && !document.querySelector(".ui-modal-overlay")) {
+    cerrarDetalle();
   }
 });
